@@ -3,4 +3,6 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="access_token">pk.eyJ1Ijoia2llcmFud2F1Z2giLCJhIjoiY2puNG5vN2htMjl4djNxcGwyZHE3a3B5eSJ9.Tf1cBvIfzpwoZtQ-XeOygQ</string>
+
 </resources>
