@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -37,7 +38,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
 
-    public String mapData;
+
     private int LoggedIn = 1;
     private final String tag = "MainActivity";
     private String downloadDate = "todays date"; //Format YYY/MM/DD
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         DownloadFileTask df = new DownloadFileTask();
         df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson");
-
         //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         if (LoggedIn == 1) {
             Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
@@ -67,22 +67,30 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
-
-        mapData = DownloadCompleteRunner.result;
-        downloadDate = settings.getString("lastDownloadDate", "");
-        Log.d(tag, "[OnStart] Recalled lastDownloadDate is '" + mapData + "'");
+        //getString();
+        //System.out.println("MainAcc " + mapData);
+        //downloadDate = settings.getString("lastDownloadDate", "");
+        //Log.d(tag, "[OnStart] Recalled lastDownloadDate is '" + mapData + "'");
 
     }
+
+//    public void getString(){
+//        if (!(DownloadFileTask = true)) {
+//            getString();
+//        } else {
+//            mapData = DownloadCompleteRunner.result;
+//        }
+//    }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(tag, "[onStop] Storing lastDownloadDate of " + mapData);
+        //Log.d(tag, "[onStop] Storing lastDownloadDate of " + mapData);
         // All objects are from android.context.Context
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
         // We need an Editor object to make preference changes.
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("lastDownloadDate", mapData);
+       // editor.putString("lastDownloadDate", mapData);
         // Apply the edits!
         editor.apply();
     }

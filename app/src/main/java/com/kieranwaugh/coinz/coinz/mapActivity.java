@@ -27,6 +27,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
@@ -40,6 +41,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         private LocationEngine locationEngine;
         private LocationLayerPlugin locationLayerPlugin;
         private Location originLocation;
+        public String mapData;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         public void onMapReady(MapboxMap mapboxMap) {
+            mapData = DownloadCompleteRunner.result;
+            //List<String> feats = Arrays.asList(mapData.split("},"));
+            System.out.println("MapReady " + mapData);
             if (mapboxMap == null) {
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{

@@ -3,10 +3,13 @@ package com.kieranwaugh.coinz.coinz;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.common.util.IOUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -22,6 +25,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
     }
 
     private String loadFileFromNetwork(String urlString) throws IOException {
+        System.out.println("load file " + urlString);
         return readStream(downloadURL(new URL(urlString)));
     }
 
@@ -38,20 +42,19 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
     @NonNull
     private String readStream(InputStream stream) throws IOException {
         //read input from stream, build result as a string
-        StringBuilder sb = new StringBuilder();
-        BufferedReader r = new BufferedReader(new InputStreamReader(stream), 1000);
-        for (String line = r.readLine(); line != null; line = r.readLine()) {
-            sb.append(line);
-        }
-
-        stream.close();
-        return stream.toString();
+        //java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\A");
+        java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\Z");
+        String str = s.hasNext() ? s.next() : "";
+        System.out.println("read stream " + str);
+        return str;
     }
 
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
+        System.out.println("on post " + result);
         DownloadCompleteRunner.downloadComplete(result);
+
     }
 
 }
