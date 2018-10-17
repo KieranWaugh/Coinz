@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
-        
+
         mapData = DownloadCompleteRunner.result;
         downloadDate = settings.getString("lastDownloadDate", "");
         Log.d(tag, "[OnStart] Recalled lastDownloadDate is '" + mapData + "'");
