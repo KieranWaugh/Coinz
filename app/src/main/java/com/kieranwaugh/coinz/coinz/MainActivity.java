@@ -35,6 +35,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,9 +58,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         DownloadFileTask df = new DownloadFileTask();
-        df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson");
-        //df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/"+year+"/"+month+"/"+day+"/coinzmap.geojson");
-        //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+        String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+        Log.d(tag, "[onCreate] The date is " + date + "fetching map");
+        String year = date.substring(0,4);
+        String month = date.substring(5,7);
+        String day = date.substring(8,10);
+        df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/"+year+"/"+month+"/"+day+"/coinzmap.geojson");
         if (LoggedIn == 1) {
             Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
             startActivity(intent2);

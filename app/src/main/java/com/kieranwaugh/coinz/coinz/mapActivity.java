@@ -17,7 +17,10 @@ import com.mapbox.android.core.location.LocationEnginePriority;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -26,7 +29,14 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +52,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         private LocationLayerPlugin locationLayerPlugin;
         private Location originLocation;
         public String mapData;
+
+        //List<FeatureCollection> features = new ArrayList<>();
+
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -83,12 +96,20 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         @Override
         public void onMapReady(MapboxMap mapboxMap) {
             mapData = DownloadCompleteRunner.result;
-            //List<String> feats = Arrays.asList(mapData.split("},"));
             System.out.println("MapReady " + mapData);
+            List<Feature> features = FeatureCollection.fromJson(mapData).features();
+
             if (mapboxMap == null) {
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
                 map = mapboxMap;
+                System.out.println("feature string " + features.get(0));
+                for (int i = 0; i < features.size(); i++) {
+
+                }
+
+
+                //mapboxMap.addSource();
                 // Set user interface options
                 //map.getUiSettings().setCompassEnabled(true);
                 //map.getUiSettings().setZoomControlsEnabled(true);
