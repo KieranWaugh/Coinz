@@ -11,6 +11,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
@@ -48,8 +49,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
+
         DownloadFileTask df = new DownloadFileTask();
         df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson");
+        //df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/"+year+"/"+month+"/"+day+"/coinzmap.geojson");
         //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         if (LoggedIn == 1) {
             Intent intent2 = new Intent(MainActivity.this, mapActivity.class);

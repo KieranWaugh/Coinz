@@ -43,7 +43,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
     private String readStream(InputStream stream) throws IOException {
         //read input from stream, build result as a string
         //java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\A");
-        java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\Z");
+        java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\Z"); //https://stackoverflow.com/questions/3402735/what-is-simplest-way-to-read-a-file-into-string
         String str = s.hasNext() ? s.next() : "";
         System.out.println("read stream " + str);
         return str;
