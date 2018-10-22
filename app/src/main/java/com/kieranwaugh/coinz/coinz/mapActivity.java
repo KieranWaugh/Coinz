@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.Window;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -23,6 +24,7 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -34,6 +36,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,6 +49,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 
 public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
@@ -116,36 +120,40 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
 
-            List<Feature> features = FeatureCollection.fromJson(mapData).features();
-            //https://stackoverflow.com/questions/20058240/extracting-data-from-json-array
-            String json = features.get(0).toJson();
-            Map jso = new Gson().fromJson(json, Map.class);
-            System.out.println(json);
-            System.out.println("---------------------");
-            System.out.println(jso.get("geometry"));
-            System.out.println(jso.get("properties"));
 
-
-            //Map two = new Gson().fromJson(jso.get("properties").toString(), Map.class);
-            Map one = new Gson().fromJson(jso.get("geometry").toString(), Map.class);
-
-            System.out.println(one.get("coordinates"));
-            System.out.println(one.get("type"));
-//            System.out.println(two.get("id"));
-//            System.out.println(two.get("value"));
-//            System.out.println(two.get("currency"));
-//            System.out.println(two.get("marker-symbol"));
-//            System.out.println(two.get("marker-color"));
-;
-            System.out.println("---------------------");
 
             if (mapboxMap == null) {
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
                 map = mapboxMap;
-//                for (int i = 0; i < features.size(); i++) { // create coin object from the features
 //
-//                }
+                List<Feature> features = FeatureCollection.fromJson(mapData).features();
+
+                for (int i = 0; i < features.size(); i++){
+                    try {
+                        JSONObject jsonObject = new JSONObject(features.get(i).toJson());
+                        JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
+                        double lng = Double.parseDouble(coordinates.get(0).toString());
+                        double lat = Double.parseDouble(coordinates.get(1).toString());
+                        String type = jsonObject.getJSONObject("geometry").getString("type");
+                        String id = jsonObject.getJSONObject("properties").getString("id");
+                        double value = jsonObject.getJSONObject("properties").getDouble("value");
+                        String strValue = String.valueOf(value);
+                        String currency = jsonObject.getJSONObject("properties").getString("currency");
+                        int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
+                        String color = jsonObject.getJSONObject("properties").getString("marker-color");
+                        coin coin = new coin(id, value, currency, lng,lat);
+                        coin.coins.put(id, coin);
+                        mapboxMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(lat,lng))
+                        .title(currency)
+                        .setSnippet("Value - " + strValue)
+
+                        );
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
 
 
                 //mapboxMap.addSource();
