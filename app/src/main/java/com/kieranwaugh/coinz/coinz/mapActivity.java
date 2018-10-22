@@ -1,6 +1,8 @@
 package com.kieranwaugh.coinz.coinz;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -36,14 +38,17 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
 
-        private String tag = "MainActivity";
+        private String tag = "MapActivity";
         private MapView mapView;
         private MapboxMap map;
 
@@ -52,6 +57,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         private LocationLayerPlugin locationLayerPlugin;
         private Location originLocation;
         public String mapData;
+        private final String savedMapData = "mapData";
+    String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
 
         //List<FeatureCollection> features = new ArrayList<>();
 
@@ -95,8 +102,19 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         public void onMapReady(MapboxMap mapboxMap) {
-            mapData = DownloadCompleteRunner.result;
-            System.out.println("MapReady " + mapData);
+
+            SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
+            if (FromFile.contains(date)){
+                mapData = FromFile.getString(date, "");
+                Log.d(tag, "[onMapReady] map data taken from file");
+                //Log.d(tag, "[onMapReady] " + mapData);
+            }else {
+                Log.d(tag, "[onMapReady] problem finding map data, taking from server");
+                mapData = DownloadCompleteRunner.result;
+
+            }
+
+
             List<Feature> features = FeatureCollection.fromJson(mapData).features();
 
             if (mapboxMap == null) {
@@ -104,9 +122,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }else{
                 map = mapboxMap;
                 System.out.println("feature string " + features.get(0));
-                for (int i = 0; i < features.size(); i++) {
-
-                }
+//                for (int i = 0; i < features.size(); i++) { // create coin object from the features
+//
+//                }
 
 
                 //mapboxMap.addSource();
@@ -121,7 +139,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         private void enableLocation() {
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
-                Log.d(tag, "Permissions are granted");
+                Log.d(tag, "[enableLocation] Permissions are granted");
                 initializeLocationEngine();
                 initializeLocationLayer();
             }else{
@@ -225,6 +243,16 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         protected void onStop(){
             super.onStop();
             mapView.onStop();
+            SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
+            if (FromFile.contains(date)){
+                Log.d(tag, "[onStop] mapData already saved");
+            }else{
+                Log.d(tag, "[onStop] New map, Saving mapData");
+                SharedPreferences settings = getSharedPreferences("mapData", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(date,mapData);
+                editor.apply();
+            }
         }
 
         @Override

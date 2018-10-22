@@ -47,24 +47,26 @@ public class MainActivity extends AppCompatActivity {
     private int LoggedIn = 1;
     private final String tag = "MainActivity";
     private String downloadDate = "todays date"; //Format YYY/MM/DD
-    private final String preferencesFile = "MyPrefsFile"; //for storing preferences
-
+    private String mapData = DownloadCompleteRunner.result;
+    String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.d(tag, "[onCreate] The date is " + date + " fetching map");
+//        String year = date.substring(0,4);
+//        String month = date.substring(5,7);
+//        String day = date.substring(8,10);
+        SharedPreferences FromFile = getSharedPreferences("mapData", Context.MODE_PRIVATE);
+        if (FromFile.contains(date)){
+            Log.d(tag, "[onCreate] Taking map data from file, moving on");
+        }else {
+            DownloadFileTask df = new DownloadFileTask();
+            df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/"+date+"/coinzmap.geojson");
+            Log.d(tag, "[onCreate] Taking map data from server");
+        }
 
-
-
-        DownloadFileTask df = new DownloadFileTask();
-
-        String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
-        Log.d(tag, "[onCreate] The date is " + date + "fetching map");
-        String year = date.substring(0,4);
-        String month = date.substring(5,7);
-        String day = date.substring(8,10);
-        df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/"+year+"/"+month+"/"+day+"/coinzmap.geojson");
         if (LoggedIn == 1) {
             Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
             startActivity(intent2);
@@ -80,33 +82,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
-        //getString();
-        //System.out.println("MainAcc " + mapData);
-        //downloadDate = settings.getString("lastDownloadDate", "");
-        //Log.d(tag, "[OnStart] Recalled lastDownloadDate is '" + mapData + "'");
 
     }
 
-//    public void getString(){
-//        if (!(DownloadFileTask = true)) {
-//            getString();
-//        } else {
-//            mapData = DownloadCompleteRunner.result;
-//        }
-//    }
 
     @Override
     public void onStop() {
         super.onStop();
-        //Log.d(tag, "[onStop] Storing lastDownloadDate of " + mapData);
-        // All objects are from android.context.Context
-        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
-        // We need an Editor object to make preference changes.
-        SharedPreferences.Editor editor = settings.edit();
-       // editor.putString("lastDownloadDate", mapData);
-        // Apply the edits!
-        editor.apply();
     }
 
 }

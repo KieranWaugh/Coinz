@@ -2,6 +2,7 @@ package com.kieranwaugh.coinz.coinz;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.gms.common.util.IOUtils;
 
@@ -15,6 +16,8 @@ import java.net.URL;
 
 public class DownloadFileTask extends AsyncTask<String, Void, String> {
 
+    private String tag = "DownloadFileTask";
+
     @Override
     protected String doInBackground(String... urls) {
         try {
@@ -25,7 +28,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
     }
 
     private String loadFileFromNetwork(String urlString) throws IOException {
-        System.out.println("load file " + urlString);
+        Log.d(tag, "[loadFileFromNetwork] getting file from " + urlString);
         return readStream(downloadURL(new URL(urlString)));
     }
 
@@ -41,18 +44,16 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
 
     @NonNull
     private String readStream(InputStream stream) throws IOException {
-        //read input from stream, build result as a string
-        //java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\A");
+        Log.d(tag, "[readStream] converting file to string");
         java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\Z"); //https://stackoverflow.com/questions/3402735/what-is-simplest-way-to-read-a-file-into-string
         String str = s.hasNext() ? s.next() : "";
-        System.out.println("read stream " + str);
+        stream.close();
         return str;
     }
 
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
-        System.out.println("on post " + result);
         DownloadCompleteRunner.downloadComplete(result);
 
     }
