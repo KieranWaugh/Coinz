@@ -117,19 +117,20 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
 
             List<Feature> features = FeatureCollection.fromJson(mapData).features();
-
+            //https://stackoverflow.com/questions/20058240/extracting-data-from-json-array
             String json = features.get(0).toJson();
             Map jso = new Gson().fromJson(json, Map.class);
             System.out.println(json);
             System.out.println("---------------------");
             System.out.println(jso.get("geometry"));
             System.out.println(jso.get("properties"));
-            String str = jso.get("properties").toString();
-            Map two = new Gson().fromJson(str, Map.class);
+
+
+            //Map two = new Gson().fromJson(jso.get("properties").toString(), Map.class);
             Map one = new Gson().fromJson(jso.get("geometry").toString(), Map.class);
 
-            //System.out.println(one.get("coordinates"));
-            //System.out.println(one.get("type"));
+            System.out.println(one.get("coordinates"));
+            System.out.println(one.get("type"));
 //            System.out.println(two.get("id"));
 //            System.out.println(two.get("value"));
 //            System.out.println(two.get("currency"));
