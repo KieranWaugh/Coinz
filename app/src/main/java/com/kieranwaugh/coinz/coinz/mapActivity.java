@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
+import com.google.gson.Gson;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -44,6 +45,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
@@ -114,14 +116,32 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
 
-
             List<Feature> features = FeatureCollection.fromJson(mapData).features();
+
+            String json = features.get(0).toJson();
+            Map jso = new Gson().fromJson(json, Map.class);
+            System.out.println(json);
+            System.out.println("---------------------");
+            System.out.println(jso.get("geometry"));
+            System.out.println(jso.get("properties"));
+            String str = jso.get("properties").toString();
+            Map two = new Gson().fromJson(str, Map.class);
+            Map one = new Gson().fromJson(jso.get("geometry").toString(), Map.class);
+
+            //System.out.println(one.get("coordinates"));
+            //System.out.println(one.get("type"));
+//            System.out.println(two.get("id"));
+//            System.out.println(two.get("value"));
+//            System.out.println(two.get("currency"));
+//            System.out.println(two.get("marker-symbol"));
+//            System.out.println(two.get("marker-color"));
+;
+            System.out.println("---------------------");
 
             if (mapboxMap == null) {
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
                 map = mapboxMap;
-                System.out.println("feature string " + features.get(0));
 //                for (int i = 0; i < features.size(); i++) { // create coin object from the features
 //
 //                }
