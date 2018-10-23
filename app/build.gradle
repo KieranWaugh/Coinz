@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 28
@@ -39,4 +40,10 @@ dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:6.5.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.5.2'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
+
+    // Added by Android Studio
+    implementation 'com.google.firebase:firebase-auth:16.0.5'
+    // Added manually
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+
 }

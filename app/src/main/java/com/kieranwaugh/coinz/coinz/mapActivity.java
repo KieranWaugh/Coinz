@@ -64,10 +64,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         private Location originLocation;
         public String mapData;
         private final String savedMapData = "mapData";
-    String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
-
-        //List<FeatureCollection> features = new ArrayList<>();
-
+        String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +75,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             Menu menu = bottomNavigationView.getMenu();
             MenuItem menuItem = menu.getItem(1);
             menuItem.setChecked(true);
-            //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -120,8 +116,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
 
-
-
             if (mapboxMap == null) {
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
@@ -148,21 +142,15 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         .position(new LatLng(lat,lng))
                         .title(currency)
                         .setSnippet("Value - " + strValue)
-
                         );
+                        Log.d(tag, "[onMapReady] Adding marker " + i + " To the map");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
 
-
-                //mapboxMap.addSource();
-                // Set user interface options
-                //map.getUiSettings().setCompassEnabled(true);
-                //map.getUiSettings().setZoomControlsEnabled(true);
-
-                // Make location information available
                 enableLocation();
+
             }
         }
 

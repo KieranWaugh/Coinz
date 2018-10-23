@@ -19,6 +19,8 @@ import android.webkit.DownloadListener;
 import android.widget.TextView;
 
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapFragment;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
@@ -44,15 +46,33 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private int LoggedIn = 1;
     private final String tag = "MainActivity";
     private String downloadDate = "todays date"; //Format YYY/MM/DD
     private String mapData = DownloadCompleteRunner.result;
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+    private FirebaseAuth firebaseAuth;
+    FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener(){
+            @Override
+            public  void  onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if(user!=null){
+                    Intent intent = new Intent(MainActivity.this, mapActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    Intent intent = new Intent(MainActivity.this, CreateAccountActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        };
 
         Log.d(tag, "[onCreate] The date is " + date + " fetching map");
 //        String year = date.substring(0,4);
@@ -67,13 +87,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d(tag, "[onCreate] Taking map data from server");
         }
 
-        if (LoggedIn == 1) {
-            Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
-            startActivity(intent2);
-        } else {
-            Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
-            startActivity(intent2);
-        }
 
         setContentView(R.layout.activity_main);
 
@@ -82,13 +95,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        firebaseAuth.addAuthStateListener(mAuthListener);
+
 
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        firebaseAuth.addAuthStateListener(mAuthListener);
+    }
 
     @Override
     public void onStop() {
         super.onStop();
+        firebaseAuth.removeAuthStateListener(mAuthListener);
     }
 
 }
