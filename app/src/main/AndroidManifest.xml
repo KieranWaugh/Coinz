@@ -3,8 +3,9 @@
     package="com.kieranwaugh.coinz.coinz">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 
     <application
         android:allowBackup="true"
@@ -24,8 +25,7 @@
         </activity>
         <activity android:name=".mapActivity" />
         <activity android:name=".statsActivity" />
-        <activity android:name=".bankActivity" />
-        <activity android:name=".CreateAccountActivity"></activity>
+        <activity android:name=".bankActivity"></activity>
     </application>
 
 </manifest>

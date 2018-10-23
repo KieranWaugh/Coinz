@@ -1,8 +1,6 @@
 package com.kieranwaugh.coinz.coinz;
 
 
-import android.util.Log;
-
 import java.util.HashMap;
 
 public class coin {
@@ -20,6 +18,5 @@ public class coin {
         this.currency = currency;
         this.lng = lng;
         this.lat = lat;
-        Log.d("Coin", "[coin] Created coin with id - " + id);
     }
 }
