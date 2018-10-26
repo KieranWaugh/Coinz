@@ -80,7 +80,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             Menu menu = bottomNavigationView.getMenu();
             MenuItem menuItem = menu.getItem(1);
             menuItem.setChecked(true);
-            //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -115,27 +114,19 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (FromFile.contains(date)){
                 mapData = FromFile.getString(date, "");
                 Log.d(tag, "[onMapReady] map data taken from file");
-                //Log.d(tag, "[onMapReady] " + mapData);
             }else {
                 Log.d(tag, "[onMapReady] problem finding map data, taking from server");
                 mapData = DownloadCompleteRunner.result;
-
             }
-
-
 
             if (mapboxMap == null) {
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
                 map = mapboxMap;
-//
                 List<Feature> features = FeatureCollection.fromJson(mapData).features();
-                //GeoJsonLayer layer = new GeoJsonLayer(mapboxMap, mapData);
                 GeoJsonSource source = new GeoJsonSource("geojson", mapData);
                 mapboxMap.addSource(source);
                 mapboxMap.addLayer(new LineLayer("geojson", "geojson"));
-
-
 
                 for (int i = 0; i < features.size(); i++){
                     try {
@@ -156,7 +147,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         .position(new LatLng(lat,lng))
                         .title(currency)
                         .setSnippet("Value - " + strValue)
-
                         );
                         Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
                     } catch (JSONException e) {
@@ -164,6 +154,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }
                 }
             }
+            enableLocation();
         }
 
         private void enableLocation() {
