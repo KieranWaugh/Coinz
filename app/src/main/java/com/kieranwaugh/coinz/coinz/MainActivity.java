@@ -19,6 +19,8 @@ import android.webkit.DownloadListener;
 import android.widget.TextView;
 
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.maps.MapFragment;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
@@ -49,10 +51,12 @@ public class MainActivity extends AppCompatActivity {
     private String downloadDate = "todays date"; //Format YYY/MM/DD
     private String mapData = DownloadCompleteRunner.result;
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
         Log.d(tag, "[onCreate] The date is " + date + " fetching map");
 //        String year = date.substring(0,4);
 //        String month = date.substring(5,7);
@@ -66,11 +70,12 @@ public class MainActivity extends AppCompatActivity {
             Log.d(tag, "[onCreate] Taking map data from server");
         }
 
+
         if (LoggedIn == 1) {
             Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
             startActivity(intent2);
         } else {
-            Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
+            Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent2);
         }
 
@@ -81,6 +86,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (mAuth.getCurrentUser() != null) { //CHANGE !=
+            startActivity(new Intent(MainActivity.this, mapActivity.class));
+            finish();
+        }
+        else {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        }
 
     }
 

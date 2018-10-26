@@ -1,5 +1,6 @@
 package com.kieranwaugh.coinz.coinz;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -7,7 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class bankActivity extends AppCompatActivity {
 
@@ -40,6 +45,16 @@ public class bankActivity extends AppCompatActivity {
                         break;
                 }
                 return false;
+            }
+        });
+
+        Button clickButton = (Button) findViewById(R.id.SignOut_Button);
+        clickButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(bankActivity.this, LoginActivity.class));
+                finish();
             }
         });
     }
