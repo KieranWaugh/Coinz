@@ -39,4 +39,9 @@ dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:6.5.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.5.2'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
+
+    //firebase
+    implementation "com.google.firebase:firebase-auth:16.0.5"
 }
+
+apply plugin: 'com.google.gms.google-services'

@@ -13,8 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -23,9 +21,11 @@ import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -34,6 +34,8 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.light.Position;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.json.JSONArray;
@@ -128,6 +130,12 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 map = mapboxMap;
 //
                 List<Feature> features = FeatureCollection.fromJson(mapData).features();
+                //GeoJsonLayer layer = new GeoJsonLayer(mapboxMap, mapData);
+                GeoJsonSource source = new GeoJsonSource("geojson", mapData);
+                mapboxMap.addSource(source);
+                mapboxMap.addLayer(new LineLayer("geojson", "geojson"));
+
+
 
                 for (int i = 0; i < features.size(); i++){
                     try {
@@ -150,19 +158,11 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         .setSnippet("Value - " + strValue)
 
                         );
+                        Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-
-
-                //mapboxMap.addSource();
-                // Set user interface options
-                //map.getUiSettings().setCompassEnabled(true);
-                //map.getUiSettings().setZoomControlsEnabled(true);
-
-                // Make location information available
-                enableLocation();
             }
         }
 

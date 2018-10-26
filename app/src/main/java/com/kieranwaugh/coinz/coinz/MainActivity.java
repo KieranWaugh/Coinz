@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Log.d(tag, "[onCreate] The date is " + date + " fetching map");
 //        String year = date.substring(0,4);
 //        String month = date.substring(5,7);
