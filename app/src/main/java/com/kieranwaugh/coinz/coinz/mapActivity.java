@@ -10,9 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.PopupMenu;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -66,14 +70,16 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         private Location originLocation;
         public String mapData;
         private final String savedMapData = "mapData";
-    String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+        String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
 
-        //List<FeatureCollection> features = new ArrayList<>();
+
+    //List<FeatureCollection> features = new ArrayList<>();
 
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
             Mapbox.getInstance(this, getString(R.string.access_token));
             setContentView(R.layout.activity_map);
             BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
@@ -105,6 +111,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView = findViewById(R.id.mapboxMapView);
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);
+
+
+
+
         }
 
         @Override
@@ -273,6 +283,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 editor.putString(date,mapData);
                 editor.apply();
             }
+
         }
 
         @Override
@@ -288,8 +299,38 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         @Override
-        protected void onSaveInstanceState(Bundle outState){
+        protected void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
             mapView.onSaveInstanceState(outState);
         }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.threebutton, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.threebutton_signout) {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(mapActivity.this, LoginActivity.class));
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
+
 }

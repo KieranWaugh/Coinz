@@ -23,15 +23,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".mapActivity" />
-        <activity android:name=".statsActivity" />
-        <activity android:name=".bankActivity" />
+        <activity
+            android:name=".mapActivity"
+            android:label="Map" />
+        <activity
+            android:name=".statsActivity"
+            android:label="Statistics" />
+        <activity
+            android:name=".bankActivity"
+            android:label="Bank" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".SignupActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".ResetPasswordActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+        <activity
+            android:name=".SignupActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

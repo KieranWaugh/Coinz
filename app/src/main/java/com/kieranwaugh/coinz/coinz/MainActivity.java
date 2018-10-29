@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
     private int LoggedIn = 1;
     private final String tag = "MainActivity";
-    private String downloadDate = "todays date"; //Format YYY/MM/DD
     private String mapData = DownloadCompleteRunner.result;
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
 
@@ -65,10 +64,12 @@ public class MainActivity extends AppCompatActivity {
             Log.d(tag, "[onCreate] Taking map data from server");
         }
 
-        Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
-        startActivity(intent2);
+        Intent intent = new Intent(MainActivity.this, mapActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
 
         setContentView(R.layout.activity_main);
+        finish();
 
     }
 
