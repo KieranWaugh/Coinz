@@ -1,5 +1,6 @@
 package com.kieranwaugh.coinz.coinz;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -86,13 +87,14 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             Menu menu = bottomNavigationView.getMenu();
             MenuItem menuItem = menu.getItem(1);
             menuItem.setChecked(true);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
             bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     switch (item.getItemId()){
                         case R.id.navigation_stats:
                             Intent intent1 = new Intent(mapActivity.this, statsActivity.class);
-                            startActivity(intent1);
+                            startActivity(intent1,options.toBundle());
                             break;
 
                         case R.id.navigation_map:
@@ -101,7 +103,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                         case R.id.navigation_bank:
                             Intent intent3 = new Intent(mapActivity.this, bankActivity.class);
-                            startActivity(intent3);
+                            startActivity(intent3, options.toBundle());
                             break;
                     }
                     return false;

@@ -1,6 +1,7 @@
 package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActionBar;
+import android.app.ActivityOptions;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -34,17 +35,12 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-        try
-        {
-            this.getSupportActionBar().hide();
-        }
-        catch (NullPointerException e){}
-
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) { //CHANGE !=
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
+            startActivity(new Intent(LoginActivity.this, MainActivity.class), options.toBundle());
             finish();
         }
 

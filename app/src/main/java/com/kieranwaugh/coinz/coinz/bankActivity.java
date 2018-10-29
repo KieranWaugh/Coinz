@@ -1,5 +1,6 @@
 package com.kieranwaugh.coinz.coinz;
 
+import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -26,18 +27,19 @@ public class bankActivity extends AppCompatActivity {
         MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
         //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
                     case R.id.navigation_stats:
                         Intent intent1 = new Intent(bankActivity.this, statsActivity.class);
-                        startActivity(intent1);
+                        startActivity(intent1, options.toBundle());
                         break;
 
                     case R.id.navigation_map:
                         Intent intent2 = new Intent(bankActivity.this, mapActivity.class);
-                        startActivity(intent2);
+                        startActivity(intent2, options.toBundle());
                         break;
 
                     case R.id.navigation_bank:
