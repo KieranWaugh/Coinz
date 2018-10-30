@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
@@ -54,6 +55,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -73,9 +75,13 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         public String mapData;
         private final String savedMapData = "mapData";
         String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+        public HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
+        public ArrayList<coin> coinsList = new ArrayList<>();
+        public HashMap<LatLng, String> markerID= new HashMap<>();
+        public ArrayList<coin> collected = new ArrayList<>();
 
 
-        @Override
+    @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
@@ -153,12 +159,19 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
                         String color = jsonObject.getJSONObject("properties").getString("marker-color");
                         coin coin = new coin(id, value, currency, lng,lat);
-                        coin.coins.put(id, coin);
-                        mapboxMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(lat,lng))
-                        .title(currency)
-                        .setSnippet("Value - " + strValue)
-                        );
+                        coins.put(id, coin);
+                        coinsList.add(coin);
+                        markerID.put(new LatLng(lat,lng), id);
+
+                        if (collected.contains(coin)){
+
+                        }else {
+                            mapboxMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(lat,lng))
+                                    .title(currency)
+                                    .setSnippet("Value: " + strValue)
+                            );
+                        }
                         Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -166,6 +179,27 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             }
             enableLocation();
+
+
+            mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(@NonNull Marker marker) {
+
+                    if (collectOK(marker.getPosition())){
+                        marker.remove();
+                        Toast.makeText(getApplicationContext(), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+                        String coinId = markerID.get(marker.getPosition());
+                        coin c = coins.get(coinId);
+                        collected.add(c);
+                        System.out.println("collected coins" + collected);
+
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Not close enough to collect this coin!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    return false;
+                }
+            });
         }
 
         private void enableLocation() {
@@ -226,7 +260,38 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d(tag, "[onLocationChanged] location is not null");
                 originLocation = location;
                 setCameraPosition(location);
+
+
             }
+
+
+
+
+        }
+
+        public boolean collectOK(LatLng coin){
+            double UserLat = originLocation.getLatitude();
+            double UserLng = originLocation.getLongitude();
+            double markLat = coin.getLatitude();
+            double marklng = coin.getLongitude();
+
+            return (distance(UserLat, UserLng, markLat, marklng) <= 25);
+            //Log.d(tag, "[collectedOK] distance to marker is " + (distance(UserLat, UserLng, markLat, marklng) ));
+
+        }
+
+        public double distance(double lat1, double lng1, double lat2, double lng2){ //https://stackoverflow.com/questions/837872/calculate-distance-in-meters-when-you-know-longitude-and-latitude-in-java
+            double earthRadius = 6371000; //meters
+            double dLat = Math.toRadians(lat2-lat1);
+            double dLng = Math.toRadians(lng2-lng1);
+            double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                            Math.sin(dLng/2) * Math.sin(dLng/2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            float dist = (float) (earthRadius * c);
+
+            return dist;
+
         }
 
         @Override
@@ -331,6 +396,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
 
 

@@ -3,16 +3,21 @@ package com.kieranwaugh.coinz.coinz;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class coin {
 
-    public String id;
+
     public double value;
     public String currency;
     public double lng;
     public double lat;
-    public HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
+    private HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
+
+
+
+
 
     public coin(String id, double value, String currency, double lng, double lat){
         this.id = id;
@@ -23,28 +28,33 @@ public class coin {
         Log.d("Coin", "[coin] Created coin with id " + id);
     }
 
-    public String getId(){
+    public String getId() {
         return id;
     }
 
-    public double getValue(){
+    public String id;
+
+    public double getValue() {
         return value;
     }
 
-    public String getCurrency(){
+    public String getCurrency() {
         return currency;
     }
 
-    public double getLng(){
+    public double getLng() {
         return lng;
     }
 
-    public double getLat(){
+    public double getLat() {
         return lat;
     }
 
-    public HashMap getCoins(){
+    public HashMap<String, coin> getCoins() {
         return coins;
     }
+
+
+
 
 }
