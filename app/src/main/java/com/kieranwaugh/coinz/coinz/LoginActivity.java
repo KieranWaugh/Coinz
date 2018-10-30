@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) { //CHANGE !=
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.nothing, R.anim.bottom_up);
             startActivity(new Intent(LoginActivity.this, MainActivity.class), options.toBundle());
             finish();
         }

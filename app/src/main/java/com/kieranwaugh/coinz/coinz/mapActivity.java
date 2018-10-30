@@ -10,6 +10,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -74,9 +75,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
 
 
-    //List<FeatureCollection> features = new ArrayList<>();
-
-
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -87,14 +85,15 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             Menu menu = bottomNavigationView.getMenu();
             MenuItem menuItem = menu.getItem(1);
             menuItem.setChecked(true);
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
+            ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_left);
+            ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_right, R.anim.slide_out_right);
             bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     switch (item.getItemId()){
                         case R.id.navigation_stats:
                             Intent intent1 = new Intent(mapActivity.this, statsActivity.class);
-                            startActivity(intent1,options.toBundle());
+                            startActivity(intent1,options2.toBundle());
                             break;
 
                         case R.id.navigation_map:
@@ -103,7 +102,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                         case R.id.navigation_bank:
                             Intent intent3 = new Intent(mapActivity.this, bankActivity.class);
-                            startActivity(intent3, options.toBundle());
+                            startActivity(intent3, options1.toBundle());
                             break;
                     }
                     return false;
@@ -262,7 +261,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         @Override
         protected void onResume(){
             super.onResume();
+            Log.d(tag, "[onResume] on resume test before");
             mapView.onResume();
+            Log.d(tag, "[onResume] on resume test after");
         }
 
         @Override

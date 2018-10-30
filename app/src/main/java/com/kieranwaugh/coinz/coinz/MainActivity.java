@@ -67,10 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(MainActivity.this, mapActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
-        startActivity(intent, options.toBundle());
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.nothing);
+        startActivity(intent);
 
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
         finish();
 
     }

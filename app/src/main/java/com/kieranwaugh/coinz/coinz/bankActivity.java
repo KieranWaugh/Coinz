@@ -27,19 +27,20 @@ public class bankActivity extends AppCompatActivity {
         MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
         //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
+        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_left);
+        ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_right, R.anim.slide_out_right);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
                     case R.id.navigation_stats:
                         Intent intent1 = new Intent(bankActivity.this, statsActivity.class);
-                        startActivity(intent1, options.toBundle());
+                        startActivity(intent1, options2.toBundle());
                         break;
 
                     case R.id.navigation_map:
                         Intent intent2 = new Intent(bankActivity.this, mapActivity.class);
-                        startActivity(intent2, options.toBundle());
+                        startActivity(intent2, options2.toBundle());
                         break;
 
                     case R.id.navigation_bank:

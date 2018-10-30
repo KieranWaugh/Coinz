@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -23,8 +26,12 @@ public class statsActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(0);
         menuItem.setChecked(true);
+
+
+
         //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_out, R.anim.fade_in);
+        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_left);
+        ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_right, R.anim.slide_out_right);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -35,12 +42,12 @@ public class statsActivity extends AppCompatActivity {
 
                     case R.id.navigation_map:
                         Intent intent2 = new Intent(statsActivity.this, mapActivity.class);
-                        startActivity(intent2, options.toBundle());
+                        startActivity(intent2, options1.toBundle());
                         break;
 
                     case R.id.navigation_bank:
                         Intent intent3 = new Intent(statsActivity.this, bankActivity.class);
-                        startActivity(intent3, options.toBundle());
+                        startActivity(intent3, options1.toBundle());
                         break;
                 }
                 return false;
