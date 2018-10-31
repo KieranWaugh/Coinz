@@ -6,7 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -118,10 +121,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView = findViewById(R.id.mapboxMapView);
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);
-
-
-
-
         }
 
         @Override
@@ -141,9 +140,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }else{
                 map = mapboxMap;
                 List<Feature> features = FeatureCollection.fromJson(mapData).features();
-                GeoJsonSource source = new GeoJsonSource("geojson", mapData);
-                mapboxMap.addSource(source);
-                mapboxMap.addLayer(new LineLayer("geojson", "geojson"));
+                enableLocation();
 
                 for (int i = 0; i < features.size(); i++){
                     try {
@@ -163,9 +160,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         coinsList.add(coin);
                         markerID.put(new LatLng(lat,lng), id);
 
-                        if (collected.contains(coin)){
 
-                        }else {
+                        if (!collected.contains(coin)){
                             mapboxMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(lat,lng))
                                     .title(currency)
@@ -178,7 +174,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }
                 }
             }
-            enableLocation();
+
 
 
             mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
@@ -188,16 +184,21 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     if (collectOK(marker.getPosition())){
                         marker.remove();
                         Toast.makeText(getApplicationContext(), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+                        //Snackbar.make(findViewById(R.id.snackbarPosition), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Snackbar.LENGTH_SHORT ).show();
                         String coinId = markerID.get(marker.getPosition());
                         coin c = coins.get(coinId);
                         collected.add(c);
-                        System.out.println("collected coins" + collected);
+                        Log.d(tag, "[onMapReady] collected coin " + c );
+                        return true;
 
                     }else{
                         Toast.makeText(getApplicationContext(), "Not close enough to collect this coin!", Toast.LENGTH_SHORT).show();
+                        //final View v = findViewById(R.id.snackbarPosition);
+                        //Snackbar.make(v,"Not close enough to collect this coin!", Snackbar.LENGTH_SHORT).show();
+                        return false;
                     }
 
-                    return false;
+                    //return false;
                 }
             });
         }
@@ -260,12 +261,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d(tag, "[onLocationChanged] location is not null");
                 originLocation = location;
                 setCameraPosition(location);
-
-
             }
-
-
-
 
         }
 
@@ -389,7 +385,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         //noinspection SimplifiableIfStatement
         if (id == R.id.threebutton_signout) {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(mapActivity.this, LoginActivity.class));
+            startActivity(new Intent(mapActivity.this, MainActivity.class));
             finish();
             return true;
         }
@@ -397,10 +393,11 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
-
+    @Override
+    public void onBackPressed(){
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
+        startActivity(new Intent(mapActivity.this, MainActivity.class), options.toBundle());
+    }
 
 
 }

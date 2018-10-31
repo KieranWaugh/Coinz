@@ -70,12 +70,18 @@ public class bankActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.threebutton_signout) {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(bankActivity.this, LoginActivity.class));
+            startActivity(new Intent(bankActivity.this, MainActivity.class));
             finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed(){
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
+        startActivity(new Intent(bankActivity.this, MainActivity.class), options.toBundle());
     }
 
 }

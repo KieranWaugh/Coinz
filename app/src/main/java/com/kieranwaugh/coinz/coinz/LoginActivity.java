@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -38,11 +39,11 @@ public class LoginActivity extends AppCompatActivity {
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
 
-        if (auth.getCurrentUser() != null) { //CHANGE !=
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.nothing, R.anim.bottom_up);
-            startActivity(new Intent(LoginActivity.this, MainActivity.class), options.toBundle());
-            finish();
-        }
+//        if (auth.getCurrentUser() != null) { //CHANGE !=
+//            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.nothing, R.anim.bottom_up);
+//            startActivity(new Intent(LoginActivity.this, MainActivity.class), options.toBundle());
+//            finish();
+//        }
 
         // set the view now
         setContentView(R.layout.activity_login);
@@ -77,6 +78,14 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                try  {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                } catch (Exception e) {
+
+                }
+
                 String email = inputEmail.getText().toString();
                 final String password = inputPassword.getText().toString();
 
@@ -109,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.makeText(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
                                     }
                                 } else {
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    Intent intent = new Intent(LoginActivity.this, mapActivity.class);
                                     startActivity(intent);
                                     finish();
                                 }

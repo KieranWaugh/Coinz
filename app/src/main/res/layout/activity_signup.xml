@@ -21,11 +21,12 @@
             android:layout_height="@dimen/logo_w_h"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="30dp"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@mipmap/ic_sic_coin" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:theme="@style/textInput">
 
             <EditText
                 android:id="@+id/email"
@@ -41,7 +42,8 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:theme="@style/textInput">
 
             <EditText
                 android:id="@+id/password"
@@ -64,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@color/blue"
+            android:background="@drawable/ripple"
             android:text="@string/action_sign_in_short"
             android:textColor="@android:color/white"
             android:textStyle="bold" />

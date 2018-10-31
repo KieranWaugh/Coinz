@@ -72,12 +72,18 @@ public class statsActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.threebutton_signout) {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(statsActivity.this, LoginActivity.class));
+            startActivity(new Intent(statsActivity.this, MainActivity.class));
             finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed(){
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
+        startActivity(new Intent(statsActivity.this, MainActivity.class), options.toBundle());
     }
 
 }
