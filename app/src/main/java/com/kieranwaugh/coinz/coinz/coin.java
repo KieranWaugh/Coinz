@@ -16,8 +16,9 @@ public class coin {
     private HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
 
 
+    public coin(){
 
-
+    }
 
     public coin(String id, double value, String currency, double lng, double lat){
         this.id = id;
