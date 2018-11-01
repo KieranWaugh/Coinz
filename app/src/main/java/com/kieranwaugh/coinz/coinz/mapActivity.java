@@ -82,6 +82,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         public ArrayList<coin> coinsList = new ArrayList<>();
         public HashMap<LatLng, String> markerID= new HashMap<>();
         public ArrayList<coin> collected = new ArrayList<>();
+        ArrayList<LatLng> locs= new ArrayList<LatLng>();
 
 
     @Override
@@ -156,6 +157,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
                         String color = jsonObject.getJSONObject("properties").getString("marker-color");
                         coin coin = new coin(id, value, currency, lng,lat);
+                        locs.add(new LatLng(lat,lng));
                         coins.put(id, coin);
                         coinsList.add(coin);
                         markerID.put(new LatLng(lat,lng), id);

@@ -1,8 +1,10 @@
 package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -14,8 +16,24 @@ import android.view.Window;
 import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class bankActivity extends AppCompatActivity {
+    public String mapData;
+    private final String savedMapData = "mapData";
+    public double SHILLrate;
+    public double QUIDrate;
+    public double PENYrate;
+    public double DOLRrate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +44,6 @@ public class bankActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
-        //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_left);
         ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_right, R.anim.slide_out_right);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -49,7 +66,23 @@ public class bankActivity extends AppCompatActivity {
                 }
                 return false;
             }
+
+
+
+
         });
+
+        try {
+            JSONObject json = new JSONObject(mapData);
+            SHILLrate = json.getJSONObject("rates").getDouble("SHILL");
+            QUIDrate = json.getJSONObject("rates").getDouble("QUID");
+            PENYrate = json.getJSONObject("rates").getDouble("PENY");
+            DOLRrate = json.getJSONObject("rates").getDouble("DOLR");
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -76,6 +109,12 @@ public class bankActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public String getRates(){
+        String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+        SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
+        return mapData = FromFile.getString(date, "");
     }
 
     @Override

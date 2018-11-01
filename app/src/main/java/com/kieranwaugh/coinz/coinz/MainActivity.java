@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
@@ -86,6 +87,37 @@ public class MainActivity extends AppCompatActivity {
 //        startActivity(intent);
         setContentView(R.layout.activity_main);
 
+        View view = findViewById(R.id.contentSpace);
+        view.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View view,MotionEvent event) {
+
+                if (auth.getCurrentUser() != null) {
+
+                    ProgressDialog nDialog;
+                    nDialog = new ProgressDialog(MainActivity.this);
+                    nDialog.setMessage("Loading..");
+                    nDialog.setTitle("Logging you in");
+
+                    nDialog.setIndeterminate(false);
+                    nDialog.setCancelable(true);
+                    nDialog.show();
+
+                    ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.bottom_up, R.anim.nothing);
+                    startActivity(new Intent(MainActivity.this, mapActivity.class), options.toBundle());
+
+                }else{
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, findViewById(R.id.imageView), "transition");
+                    startActivity(intent, options.toBundle());
+                }
+
+                return true;
+
+            }
+        });
+
         final Button playButton = (Button) findViewById(R.id.PlayButton);
         playButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -97,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
                     nDialog = new ProgressDialog(MainActivity.this);
                     nDialog.setMessage("Loading..");
                     nDialog.setTitle("Logging you in");
+
                     nDialog.setIndeterminate(false);
                     nDialog.setCancelable(true);
                     nDialog.show();
