@@ -1,0 +1,24 @@
+Index: app/src/main/java/com/kieranwaugh/coinz/coinz/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.kieranwaugh.coinz.coinz;\n\nimport android.annotation.SuppressLint;\nimport android.content.Context;\nimport android.content.Intent;\nimport android.content.SharedPreferences;\nimport android.os.AsyncTask;\nimport android.os.Bundle;\nimport android.support.annotation.NonNull;\nimport android.support.design.widget.BottomNavigationView;\nimport android.support.v4.app.Fragment;\nimport android.support.v4.app.FragmentManager;\nimport android.support.v7.app.AppCompatActivity;\nimport android.text.format.DateFormat;\nimport android.util.Log;\nimport android.view.MenuItem;\nimport android.view.Window;\nimport android.webkit.DownloadListener;\nimport android.widget.TextView;\n\n\nimport com.google.firebase.auth.FirebaseAuth;\nimport com.google.firebase.auth.FirebaseUser;\nimport com.mapbox.mapboxsdk.Mapbox;\nimport com.mapbox.mapboxsdk.maps.MapFragment;\nimport com.mapbox.mapboxsdk.maps.MapboxMapOptions;\nimport com.mapbox.mapboxsdk.maps.OnMapReadyCallback;\nimport com.mapbox.mapboxsdk.maps.SupportMapFragment;\n\nimport java.io.BufferedReader;\nimport java.io.IOException;\nimport java.io.InputStream;\nimport java.io.InputStreamReader;\nimport java.io.PrintStream;\nimport java.net.HttpURLConnection;\nimport java.net.MalformedURLException;\nimport java.net.URI;\nimport java.net.URISyntaxException;\nimport java.net.URL;\nimport java.text.SimpleDateFormat;\nimport java.util.Calendar;\nimport java.util.Date;\nimport java.util.Locale;\n\npublic class MainActivity extends AppCompatActivity {\n\n\n\n    private int LoggedIn = 1;\n    private final String tag = \"MainActivity\";\n    private String downloadDate = \"todays date\"; //Format YYY/MM/DD\n    private String mapData = DownloadCompleteRunner.result;\n    String date = new SimpleDateFormat(\"yyyy/MM/dd\", Locale.getDefault()).format(new Date());\n    private FirebaseAuth mAuth;\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        mAuth = FirebaseAuth.getInstance();\n        Log.d(tag, \"[onCreate] The date is \" + date + \" fetching map\");\n//        String year = date.substring(0,4);\n//        String month = date.substring(5,7);\n//        String day = date.substring(8,10);\n        SharedPreferences FromFile = getSharedPreferences(\"mapData\", Context.MODE_PRIVATE);\n        if (FromFile.contains(date)){\n            Log.d(tag, \"[onCreate] Taking map data from file, moving on\");\n        }else {\n            DownloadFileTask df = new DownloadFileTask();\n            df.execute(\"http://homepages.inf.ed.ac.uk/stg/coinz/\"+date+\"/coinzmap.geojson\");\n            Log.d(tag, \"[onCreate] Taking map data from server\");\n        }\n\n\n        if (LoggedIn == 1) {\n            Intent intent2 = new Intent(MainActivity.this, mapActivity.class);\n            startActivity(intent2);\n        } else {\n            Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);\n            startActivity(intent2);\n        }\n\n        setContentView(R.layout.activity_main);\n\n    }\n\n    @Override\n    public void onStart() {\n        super.onStart();\n        FirebaseUser currentUser = mAuth.getCurrentUser();\n        if (mAuth.getCurrentUser() != null) { //CHANGE !=\n            startActivity(new Intent(MainActivity.this, mapActivity.class));\n            finish();\n        }\n        else {\n            startActivity(new Intent(MainActivity.this, LoginActivity.class));\n            finish();\n        }\n\n    }\n\n\n    @Override\n    public void onStop() {\n        super.onStop();\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/kieranwaugh/coinz/coinz/MainActivity.java	(revision cceb365d438bf0102e3475e0a9adab26c3bea066)
++++ app/src/main/java/com/kieranwaugh/coinz/coinz/MainActivity.java	(date 1540569120000)
+@@ -71,14 +71,6 @@
+         }
+ 
+ 
+-        if (LoggedIn == 1) {
+-            Intent intent2 = new Intent(MainActivity.this, mapActivity.class);
+-            startActivity(intent2);
+-        } else {
+-            Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);
+-            startActivity(intent2);
+-        }
+-
+         setContentView(R.layout.activity_main);
+ 
+     }
