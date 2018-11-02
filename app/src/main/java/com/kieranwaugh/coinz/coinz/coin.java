@@ -14,6 +14,7 @@ public class coin {
     public double lng;
     public double lat;
     private HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
+    public HashMap<String, coin> collected = new HashMap<>();
 
 
     public coin(){

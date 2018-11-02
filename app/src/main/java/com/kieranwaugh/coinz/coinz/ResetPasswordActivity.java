@@ -1,7 +1,10 @@
 package com.kieranwaugh.coinz.coinz;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -37,7 +40,9 @@ public class ResetPasswordActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                Intent intent = new Intent(ResetPasswordActivity.this, LoginActivity.class);
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(ResetPasswordActivity.this, findViewById(R.id.imageView), "transition");
+                startActivity(intent, options.toBundle());
             }
         });
 
@@ -54,7 +59,8 @@ public class ResetPasswordActivity extends AppCompatActivity {
                 String email = inputEmail.getText().toString().trim();
 
                 if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplication(), "Enter your registered email id", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplication(), "Enter your Email Address", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(R.id.viewSnack), "Enter your Email Address",Snackbar.LENGTH_LONG).show();
                     return;
                 }
 
@@ -64,9 +70,13 @@ public class ResetPasswordActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    Toast.makeText(ResetPasswordActivity.this, "We have sent you instructions to reset your password!", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(ResetPasswordActivity.this, "Check your email for password reset instructions", Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(findViewById(R.id.viewSnack), "Check your email for password reset instructions",Snackbar.LENGTH_LONG).show();
+
                                 } else {
-                                    Toast.makeText(ResetPasswordActivity.this, "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(ResetPasswordActivity.this, "Problem sending email, please try again.", Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(findViewById(R.id.viewSnack), "Problem sending email, please try again.",Snackbar.LENGTH_LONG).show();
+
                                 }
 
                                 progressBar.setVisibility(View.GONE);

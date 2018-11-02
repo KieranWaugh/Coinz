@@ -23,12 +23,13 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
         try {
             return loadFileFromNetwork(urls[0]);
         } catch (IOException e) {
-            return "Unable to load content. Check your network connection.";
+            return "Unable to load content. Check your network connection." + e.toString();
         }
     }
 
     private String loadFileFromNetwork(String urlString) throws IOException {
         Log.d(tag, "[loadFileFromNetwork] getting file from " + urlString);
+
         return readStream(downloadURL(new URL(urlString)));
     }
 

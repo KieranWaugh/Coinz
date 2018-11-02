@@ -46,4 +46,15 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.4'
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == "com.android.support") {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion "27.+"
+            }
+        }
+    }
+}
+
 apply plugin: 'com.google.gms.google-services'

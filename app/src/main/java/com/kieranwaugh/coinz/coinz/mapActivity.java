@@ -85,6 +85,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         ArrayList<LatLng> locs= new ArrayList<LatLng>();
 
 
+
     @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -131,6 +132,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (FromFile.contains(date)){
                 mapData = FromFile.getString(date, "");
                 Log.d(tag, "[onMapReady] map data taken from file");
+                Log.d(tag, mapData);
             }else {
                 Log.d(tag, "[onMapReady] problem finding map data, taking from server");
                 mapData = DownloadCompleteRunner.result;
@@ -142,7 +144,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 map = mapboxMap;
                 List<Feature> features = FeatureCollection.fromJson(mapData).features();
                 enableLocation();
-
+                Log.d(tag, mapData);
                 for (int i = 0; i < features.size(); i++){
                     try {
                         JSONObject jsonObject = new JSONObject(features.get(i).toJson());
@@ -163,7 +165,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         markerID.put(new LatLng(lat,lng), id);
 
 
-                        if (!collected.contains(coin)){
+                        if (!coin.collected.containsKey(id)){
                             mapboxMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(lat,lng))
                                     .title(currency)
@@ -183,20 +185,24 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
 
-                    if (collectOK(marker.getPosition())){
+                    if (originLocation == null){
+                        Snackbar.make(findViewById(R.id.viewSnack), "Trying to find your location.",Snackbar.LENGTH_LONG).show();
+                        return false;
+                    }else if (collectOK(marker.getPosition())){
                         marker.remove();
-                        Toast.makeText(getApplicationContext(), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(R.id.viewSnack), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(),Snackbar.LENGTH_LONG).show();
                         //Snackbar.make(findViewById(R.id.snackbarPosition), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Snackbar.LENGTH_SHORT ).show();
                         String coinId = markerID.get(marker.getPosition());
                         coin c = coins.get(coinId);
                         collected.add(c);
+                        coin cn = new coin();
+                        cn.collected.put(c.getId(), c);
                         Log.d(tag, "[onMapReady] collected coin " + c );
                         return true;
-
-                    }else{
-                        Toast.makeText(getApplicationContext(), "Not close enough to collect this coin!", Toast.LENGTH_SHORT).show();
-                        //final View v = findViewById(R.id.snackbarPosition);
-                        //Snackbar.make(v,"Not close enough to collect this coin!", Snackbar.LENGTH_SHORT).show();
+                    } else{
+                        //Toast.makeText(getApplicationContext(), "Not close enough to collect this coin!", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(R.id.viewSnack), "Not close enough to collect this coin!",Snackbar.LENGTH_LONG).show();
                         return false;
                     }
 

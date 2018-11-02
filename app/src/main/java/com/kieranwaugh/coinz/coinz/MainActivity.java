@@ -81,10 +81,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d(tag, "[onCreate] Taking map data from server");
         }
 
-//        Intent intent = new Intent(MainActivity.this, mapActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-//        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.nothing);
-//        startActivity(intent);
         setContentView(R.layout.activity_main);
 
         View view = findViewById(R.id.contentSpace);
