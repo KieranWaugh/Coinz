@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
 //        }
 
         // set the view now
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login_test);
 
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
@@ -64,14 +64,18 @@ public class LoginActivity extends AppCompatActivity {
         btnSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, SignupActivity.class));
+                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, findViewById(R.id.imageView), "transition");
+                startActivity(intent, options.toBundle());
             }
         });
 
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class)); // CHANGE BACK RESET PASSWORD
+                Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(LoginActivity.this, findViewById(R.id.imageView), "transition");
+                startActivity(intent, options.toBundle());
             }
         });
 

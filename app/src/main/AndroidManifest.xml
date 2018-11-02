@@ -43,8 +43,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".bankingActivity"
-            android:label="@string/title_activity_banking"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:label="Bank"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

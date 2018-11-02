@@ -9,11 +9,13 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.JsonObject;
@@ -34,6 +36,8 @@ public class bankActivity extends AppCompatActivity {
     public double QUIDrate;
     public double PENYrate;
     public double DOLRrate;
+    String tag = "bankActivity";
+    private TextView txt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +77,17 @@ public class bankActivity extends AppCompatActivity {
         });
 
         try {
+
+            getRates();
             JSONObject json = new JSONObject(mapData);
-            SHILLrate = json.getJSONObject("rates").getDouble("SHILL");
+            SHILLrate = json.getJSONObject("rates").getDouble("SHIL");
             QUIDrate = json.getJSONObject("rates").getDouble("QUID");
             PENYrate = json.getJSONObject("rates").getDouble("PENY");
             DOLRrate = json.getJSONObject("rates").getDouble("DOLR");
+            txt = (TextView)findViewById(R.id.ratesView);
+            txt.setText("Rates:\nSHILL: " + SHILLrate +"\nQUID: " + QUIDrate + "\nPENY: " + PENYrate + "\nDOLR: " + DOLRrate);
+
+
 
 
         } catch (JSONException e) {
@@ -111,10 +121,10 @@ public class bankActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public String getRates(){
+    public void getRates(){
         String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
         SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
-        return mapData = FromFile.getString(date, "");
+        mapData = FromFile.getString(date, "");
     }
 
     @Override
