@@ -106,7 +106,7 @@ public class SignupActivity extends AppCompatActivity {
                                     Snackbar.make(findViewById(R.id.viewSnack), "Problem signing you up." + task.getException(),Snackbar.LENGTH_LONG).show();
                                 } else {
                                     ActivityOptions options = ActivityOptions.makeCustomAnimation(SignupActivity.this, R.anim.nothing, R.anim.bottom_up);
-                                    startActivity(new Intent(SignupActivity.this, MainActivity.class), options.toBundle());
+                                    startActivity(new Intent(SignupActivity.this, mapActivity.class), options.toBundle());
                                     finish();
                                 }
                             }

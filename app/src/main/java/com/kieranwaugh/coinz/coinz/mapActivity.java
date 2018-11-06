@@ -4,6 +4,8 @@ import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -22,7 +24,18 @@ import android.view.Window;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -33,6 +46,7 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
@@ -52,6 +66,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -78,11 +93,14 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         public String mapData;
         private final String savedMapData = "mapData";
         String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+        String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         public HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
         public ArrayList<coin> coinsList = new ArrayList<>();
         public HashMap<LatLng, String> markerID= new HashMap<>();
-        public ArrayList<coin> collected = new ArrayList<>();
+        public ArrayList<String> collected = new ArrayList<>();
         ArrayList<LatLng> locs= new ArrayList<LatLng>();
+        String UID = FirebaseAuth.getInstance().getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
 
@@ -96,8 +114,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             Menu menu = bottomNavigationView.getMenu();
             MenuItem menuItem = menu.getItem(1);
             menuItem.setChecked(true);
-            ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_left);
-            ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_right, R.anim.slide_out_right);
+            ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
+            ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
             bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -123,11 +141,12 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView = findViewById(R.id.mapboxMapView);
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);
+            getCollected();
         }
 
         @Override
         public void onMapReady(MapboxMap mapboxMap) {
-
+            Log.d(tag, "[onMapReady] " + collected.toString());
             SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
             if (FromFile.contains(date)){
                 mapData = FromFile.getString(date, "");
@@ -144,14 +163,12 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 map = mapboxMap;
                 List<Feature> features = FeatureCollection.fromJson(mapData).features();
                 enableLocation();
-                Log.d(tag, mapData);
                 for (int i = 0; i < features.size(); i++){
                     try {
                         JSONObject jsonObject = new JSONObject(features.get(i).toJson());
                         JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
                         double lng = Double.parseDouble(coordinates.get(0).toString());
                         double lat = Double.parseDouble(coordinates.get(1).toString());
-                        String type = jsonObject.getJSONObject("geometry").getString("type");
                         String id = jsonObject.getJSONObject("properties").getString("id");
                         double value = jsonObject.getJSONObject("properties").getDouble("value");
                         String strValue = String.valueOf(value);
@@ -164,13 +181,21 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         coinsList.add(coin);
                         markerID.put(new LatLng(lat,lng), id);
 
+                        //URL url = new URL("http://chart.googleapis.com/chart?chst=d_map_pin_letter&chld="+markerSymbol+"|"+color.substring(1, color.length())+"|000000&.png");
+                        //Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                        //BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(bmp);
+                        //Icon icon = new Icon();
 
-                        if (!coin.collected.containsKey(id)){
+
+                        if (!collected.contains(id)){
                             mapboxMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(lat,lng))
                                     .title(currency)
                                     .setSnippet("Value: " + strValue)
+                                    //.icon(BitmapDescriptorFactory.fromBitmap(bmp))
                             );
+                        }else{
+                            continue;
                         }
                         Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
                     } catch (JSONException e) {
@@ -190,18 +215,26 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         return false;
                     }else if (collectOK(marker.getPosition())){
                         marker.remove();
-                        //Toast.makeText(getApplicationContext(), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Toast.LENGTH_SHORT).show();
                         Snackbar.make(findViewById(R.id.viewSnack), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(),Snackbar.LENGTH_LONG).show();
-                        //Snackbar.make(findViewById(R.id.snackbarPosition), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(), Snackbar.LENGTH_SHORT ).show();
                         String coinId = markerID.get(marker.getPosition());
                         coin c = coins.get(coinId);
-                        collected.add(c);
-                        coin cn = new coin();
-                        cn.collected.put(c.getId(), c);
-                        Log.d(tag, "[onMapReady] collected coin " + c );
+                        db.collection("wallet").document(UID).collection("collected ("+dateDB +")")
+                                .add(c)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Log.d(tag, "coin collected with id " + coinId);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(tag, "Error collecting coin", e);
+                                    }
+                                });
+
                         return true;
                     } else{
-                        //Toast.makeText(getApplicationContext(), "Not close enough to collect this coin!", Toast.LENGTH_SHORT).show();
                         Snackbar.make(findViewById(R.id.viewSnack), "Not close enough to collect this coin!",Snackbar.LENGTH_LONG).show();
                         return false;
                     }
@@ -273,6 +306,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         }
 
+
         public boolean collectOK(LatLng coin){
             double UserLat = originLocation.getLatitude();
             double UserLng = originLocation.getLongitude();
@@ -292,9 +326,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
                             Math.sin(dLng/2) * Math.sin(dLng/2);
             double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            float dist = (float) (earthRadius * c);
-
-            return dist;
+            return (float) (earthRadius * c);
 
         }
 
@@ -399,6 +431,24 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void getCollected(){
+
+        db.collection("wallet").document(UID).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+
+                if (e == null){
+                    for (DocumentChange documentChange : documentSnapshots.getDocumentChanges()) {
+                        String collectedID=  documentChange.getDocument().getData().get("id").toString();
+                        Log.d(tag, "[getCollected] "+ collectedID);
+                        collected.add(collectedID);
+
+                    }
+                }
+            }
+        });
     }
 
     @Override

@@ -18,6 +18,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
@@ -37,7 +42,11 @@ public class bankActivity extends AppCompatActivity {
     public double PENYrate;
     public double DOLRrate;
     String tag = "bankActivity";
+    private int goldBal;
     private TextView txt;
+    String UID = FirebaseAuth.getInstance().getUid();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +57,8 @@ public class bankActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
-        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_left);
-        ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_right, R.anim.slide_out_right);
+        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
+        ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -131,6 +140,19 @@ public class bankActivity extends AppCompatActivity {
     public void onBackPressed(){
         ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
         startActivity(new Intent(bankActivity.this, MainActivity.class), options.toBundle());
+    }
+
+    public void getCollected(){
+
+        db.collection("bank").document(UID).collection("balance").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+
+                if (e == null){
+                    //find gold balance here
+                }
+            }
+        });
     }
 
 }

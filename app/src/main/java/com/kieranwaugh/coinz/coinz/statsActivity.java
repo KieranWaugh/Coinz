@@ -30,8 +30,8 @@ public class statsActivity extends AppCompatActivity {
 
 
         //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_left, R.anim.slide_out_left);
-        ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.slide_in_right, R.anim.slide_out_right);
+        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
+        ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
