@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,7 @@ import org.json.JSONObject;
 
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -41,15 +43,26 @@ public class bankActivity extends AppCompatActivity {
     public double QUIDrate;
     public double PENYrate;
     public double DOLRrate;
+    public double SHILLtotal;
+    public double QUIDtotal;
+    public double PENYtotal;
+    public double DOLRtotal;
     String tag = "bankActivity";
+    ArrayList totals;
     private int goldBal;
     private TextView txt;
+    String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     String UID = FirebaseAuth.getInstance().getUid();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //
+        GetData gd = new GetData();
+        totals = gd.getCoinsTotal();
+        Log.d(tag, "[onCreate] " + totals.toString());
+        Log.d(tag, "[onCreate] " + QUIDtotal);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bank);
 
@@ -94,7 +107,9 @@ public class bankActivity extends AppCompatActivity {
             PENYrate = json.getJSONObject("rates").getDouble("PENY");
             DOLRrate = json.getJSONObject("rates").getDouble("DOLR");
             txt = (TextView)findViewById(R.id.ratesView);
-            txt.setText("Rates:\nSHILL: " + SHILLrate +"\nQUID: " + QUIDrate + "\nPENY: " + PENYrate + "\nDOLR: " + DOLRrate);
+//            txt.setText("SHILL - " + SHILLtotal + "\nQUID - " + QUIDtotal + "\nPENY - " + PENYtotal + "\nDOLR - " + DOLRtotal);
+            //txt.setText("Rates:\nSHILL: " + SHILLrate +"\nQUID: " + QUIDrate + "\nPENY: " + PENYrate + "\nDOLR: " + DOLRrate);
+
 
 
 
@@ -104,6 +119,8 @@ public class bankActivity extends AppCompatActivity {
         }
 
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -144,15 +161,46 @@ public class bankActivity extends AppCompatActivity {
 
     public void getCollected(){
 
-        db.collection("bank").document(UID).collection("balance").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("wallet").document(UID).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
 
                 if (e == null){
-                    //find gold balance here
+                    for (DocumentChange documentChange : documentSnapshots.getDocumentChanges()) {
+                        String currency =  documentChange.getDocument().getData().get("currency").toString();
+                        double value =  Double.parseDouble(documentChange.getDocument().getData().get("value").toString());
+                        Log.d(tag, "[getCollected] " + currency + " " + value + " " + QUIDtotal);
+
+                        switch (currency){
+                            case "SHILL":
+                                SHILLtotal += value;
+                            case "QUID":
+                                QUIDtotal += value;
+                            case "DOLR":
+                                DOLRtotal += value;
+                            case "PENY":
+                                PENYtotal += value;
+                        }
+
+                    }
                 }
             }
         });
     }
+    @Override
+    public void onStart(){
+        super.onStart();
+        txt = (TextView)findViewById(R.id.ratesView);
+        //txt.setText("SHILL - " + SHILLtotal + "\nQUID - " + QUIDtotal + "\nPENY - " + PENYtotal + "\nDOLR - " + DOLRtotal);
+        Log.d(tag, "[onStart] " + QUIDtotal);
+    }
 
-}
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d(tag, "[onDestroy] " + QUIDtotal);
+    }
+
+
+    }
+
+
