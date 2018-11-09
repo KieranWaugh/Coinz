@@ -186,7 +186,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         //BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(bmp);
                         //Icon icon = new Icon();
 
-
                         if (!collected.contains(id)){
                             mapboxMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(lat,lng))
@@ -435,7 +434,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void getCollected(){
 
-        db.collection("wallet").document(UID).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("wallet(" + UID + dateDB + ")").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
 

@@ -15,11 +15,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -47,6 +53,10 @@ public class bankActivity extends AppCompatActivity {
     public double QUIDtotal;
     public double PENYtotal;
     public double DOLRtotal;
+    private Spinner spinner;
+    public ArrayList <String> coinRefs = new ArrayList<>();
+    public ArrayList<coin> collected = new ArrayList<>();
+    public String[] drop = new String[collected.size()];
     String tag = "bankActivity";
     ArrayList totals;
     private int goldBal;
@@ -58,7 +68,10 @@ public class bankActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //
+
+        getCollected();
+
+
         GetData gd = new GetData();
         totals = gd.getCoinsTotal();
         Log.d(tag, "[onCreate] " + totals.toString());
@@ -106,17 +119,11 @@ public class bankActivity extends AppCompatActivity {
             QUIDrate = json.getJSONObject("rates").getDouble("QUID");
             PENYrate = json.getJSONObject("rates").getDouble("PENY");
             DOLRrate = json.getJSONObject("rates").getDouble("DOLR");
-            txt = (TextView)findViewById(R.id.ratesView);
-//            txt.setText("SHILL - " + SHILLtotal + "\nQUID - " + QUIDtotal + "\nPENY - " + PENYtotal + "\nDOLR - " + DOLRtotal);
-            //txt.setText("Rates:\nSHILL: " + SHILLrate +"\nQUID: " + QUIDrate + "\nPENY: " + PENYrate + "\nDOLR: " + DOLRrate);
-
-
-
-
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d(tag, "[onCreate] " + collected.toString());
 
     }
 
@@ -159,38 +166,10 @@ public class bankActivity extends AppCompatActivity {
         startActivity(new Intent(bankActivity.this, MainActivity.class), options.toBundle());
     }
 
-    public void getCollected(){
-
-        db.collection("wallet").document(UID).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-
-                if (e == null){
-                    for (DocumentChange documentChange : documentSnapshots.getDocumentChanges()) {
-                        String currency =  documentChange.getDocument().getData().get("currency").toString();
-                        double value =  Double.parseDouble(documentChange.getDocument().getData().get("value").toString());
-                        Log.d(tag, "[getCollected] " + currency + " " + value + " " + QUIDtotal);
-
-                        switch (currency){
-                            case "SHILL":
-                                SHILLtotal += value;
-                            case "QUID":
-                                QUIDtotal += value;
-                            case "DOLR":
-                                DOLRtotal += value;
-                            case "PENY":
-                                PENYtotal += value;
-                        }
-
-                    }
-                }
-            }
-        });
-    }
     @Override
     public void onStart(){
         super.onStart();
-        txt = (TextView)findViewById(R.id.ratesView);
+        //txt = (TextView)findViewById(R.id.ratesView);
         //txt.setText("SHILL - " + SHILLtotal + "\nQUID - " + QUIDtotal + "\nPENY - " + PENYtotal + "\nDOLR - " + DOLRtotal);
         Log.d(tag, "[onStart] " + QUIDtotal);
     }
@@ -198,6 +177,39 @@ public class bankActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         Log.d(tag, "[onDestroy] " + QUIDtotal);
+    }
+
+    public void getCollected(){
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+        CollectionReference walletRef = rootRef.collection("wallet(" + UID + dateDB +")");
+        walletRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        coinRefs.add(walletRef.getId());
+                        coin c = document.toObject(coin.class);
+                        collected.add(c);
+
+                    }
+                    for (int i = 0; i < collected.size(); i++){
+                        String s  = collected.get(i).getCurrency();
+                        drop[i] = s;
+                    }
+
+                    spinner = (Spinner)findViewById(R.id.spinner);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(bankActivity.this,
+                            android.R.layout.simple_spinner_item, drop);
+
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinner.setAdapter(adapter);
+                    //spinner.setOnItemSelectedListener(this);
+
+
+                }
+            }
+        });
+
     }
 
 

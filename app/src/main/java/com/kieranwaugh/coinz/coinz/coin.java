@@ -55,6 +55,10 @@ public class coin {
         return coins;
     }
 
+    public String getString(){
+        return id + " - " + currency;
+    }
+
 
 
 
