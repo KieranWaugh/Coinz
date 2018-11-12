@@ -2,67 +2,70 @@ package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActivityOptions;
 import android.content.Context;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.support.annotation.NonNull;
+
+
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+
 import android.view.View;
-import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.JsonObject;
 
-import org.json.JSONArray;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
+
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.StringReader;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Objects;
 
 public class bankActivity extends AppCompatActivity {
     public String mapData;
-    private final String savedMapData = "mapData";
     public double SHILLrate;
     public double QUIDrate;
     public double PENYrate;
     public double DOLRrate;
-    public double QUIDtotal;
-    private Spinner spinner;
-    public ArrayList <String> coinRefs = new ArrayList<>();
-    public ArrayList<coin> collected = new ArrayList<>();
-    private HashMap<String, coin> collectedMap = new HashMap<>();
-    //public String[] drop = new String[collected.size()];
-    String tag = "bankActivity";
-    ArrayList totals;
-    private int goldBal;
     private TextView txt;
+    private TextView goldBalView;
+    private Spinner spinner;
+    private Button bankButton;
+    private int selectedCoin;
+    private int bankedCount;
+    //public ArrayList <String> coinRefs = new ArrayList<>();
+    public ArrayList<coin> collected = new ArrayList<>();
+    private LinkedHashMap<String, coin> collectedMap = new LinkedHashMap<>();
+    String tag = "bankActivity";
+    //ArrayList totals;
+    private int goldBal;
+    //private TextView txt;
     String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     String UID = FirebaseAuth.getInstance().getUid();
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
     @Override
@@ -72,37 +75,29 @@ public class bankActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bank);
-
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
-        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
+        //ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
         ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.navigation_stats:
-                        Intent intent1 = new Intent(bankActivity.this, statsActivity.class);
-                        startActivity(intent1, options2.toBundle());
-                        break;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()){
+                case R.id.navigation_stats:
+                    Intent intent1 = new Intent(bankActivity.this, statsActivity.class);
+                    startActivity(intent1, options2.toBundle());
+                    break;
 
-                    case R.id.navigation_map:
-                        Intent intent2 = new Intent(bankActivity.this, mapActivity.class);
-                        startActivity(intent2, options2.toBundle());
-                        break;
+                case R.id.navigation_map:
+                    Intent intent2 = new Intent(bankActivity.this, mapActivity.class);
+                    startActivity(intent2, options2.toBundle());
+                    break;
 
-                    case R.id.navigation_bank:
+                case R.id.navigation_bank:
 
-                        break;
-                }
-                return false;
+                    break;
             }
-
-
-
-
+            return false;
         });
 
         try {
@@ -118,6 +113,10 @@ public class bankActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Log.d(tag, "[onCreate] " + collected.toString());
+        txt = (TextView)findViewById(R.id.ratesView);
+        txt.setText("SHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
+        goldBalView = findViewById(R.id.goldBalView);
+        goldBalView.setText("Gold Balance: " + goldBal);
 
 
 
@@ -152,6 +151,7 @@ public class bankActivity extends AppCompatActivity {
 
     public void getRates(){
         String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+        String savedMapData = "mapData";
         SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
         mapData = FromFile.getString(date, "");
     }
@@ -165,8 +165,7 @@ public class bankActivity extends AppCompatActivity {
     @Override
     public void onStart(){
         super.onStart();
-        //txt = (TextView)findViewById(R.id.ratesView);
-        //txt.setText("SHILL - " + SHILLtotal + "\nQUID - " + QUIDtotal + "\nPENY - " + PENYtotal + "\nDOLR - " + DOLRtotal);
+
 
     }
 
@@ -177,43 +176,69 @@ public class bankActivity extends AppCompatActivity {
 
     public void getCollected(){
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-        //CollectionReference walletRef = rootRef.collection("wallet(" + UID + dateDB +")");
         CollectionReference cr = rootRef.collection("wallet").document(UID).collection("collected ("+dateDB +")");
-       cr.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
+       cr.get().addOnCompleteListener(task -> {
+           if (task.isSuccessful()) {
 
-                    for (DocumentSnapshot document : task.getResult()) {
-                        String ref = (document.getId());
-                        Log.d(tag, ref);
-                        coin c = document.toObject(coin.class);
-                        collectedMap.put(ref, c);
-                        if (!c.isBanked()){
-                            collected.add(c);
-                        }
-                    }
-                    String[] drop = new String[collected.size()];
-                    Log.d(tag, "collected size " + collected.size());
-                    for (int i = 0; i < collected.size(); i++){
-                        String s  = collected.get(i).getCurrency() + ": " + collected.get(i).getValue();
-                        drop[i] = s;
-                    }
-                    Log.d(tag, collectedMap.toString());
-                    spinner = (Spinner)findViewById(R.id.spinner);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(bankActivity.this,
-                            android.R.layout.simple_spinner_item, drop);
+               for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                   String ref = (document.getId());
+                   Log.d(tag, ref);
+                   coin c = document.toObject(coin.class);
 
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinner.setAdapter(adapter);
-                    int sp = spinner.getSelectedItemPosition();
-                    Log.d(tag, "location " + sp);
-                    //spinner.setOnItemSelectedListener(getApplicationContext());
+                   assert c != null;
+                   if (!c.isBanked()){
+                       collectedMap.put(ref, c);
+                       collected.add(c);
+                   }else{
+                       bankedCount +=1;
+                   }
+               }
+               String[] drop = new String[collected.size() + 1];
+               drop[0] = "Select coin to bank.";
+               for (int i = 0; i < collected.size(); i++){
+                   String s  = collected.get(i).getCurrency() + ": " + collected.get(i).getValue();
+                   drop[i+1] = s;
+               }
+               Log.d(tag, collectedMap.toString());
+               spinner = findViewById(R.id.spinner);
+               ArrayAdapter<String> adapter = new ArrayAdapter<>(bankActivity.this,
+                       android.R.layout.simple_spinner_item, drop);
+
+               adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+               spinner.setAdapter(adapter);
+
+               spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                   @Override
+                   public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                       int sp = spinner.getSelectedItemPosition();
+                       if (sp != 0) {
+                           selectedCoin = sp-1;
+
+                       }else{
+                           selectedCoin = 51; // not possible ot get 51 coins, hence shows first list item has been selected
+                       }
+                       Log.d(tag, "[getCollected] " + selectedCoin);
+
+                   }
+
+                   @Override
+                   public void onNothingSelected(AdapterView<?> parent) {
+                   }
+               });
 
 
-                }
-            }
-        });
+
+           }
+       });
+
+       bankButton = findViewById(R.id.bankButton);
+//       bankButton.setOnClickListener(v -> {
+////           if (selectedCoin != 51){
+////
+////           }
+//       });
+
 
     }
 
