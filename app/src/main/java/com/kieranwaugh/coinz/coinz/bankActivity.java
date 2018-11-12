@@ -40,6 +40,7 @@ import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class bankActivity extends AppCompatActivity {
@@ -49,14 +50,12 @@ public class bankActivity extends AppCompatActivity {
     public double QUIDrate;
     public double PENYrate;
     public double DOLRrate;
-    public double SHILLtotal;
     public double QUIDtotal;
-    public double PENYtotal;
-    public double DOLRtotal;
     private Spinner spinner;
     public ArrayList <String> coinRefs = new ArrayList<>();
     public ArrayList<coin> collected = new ArrayList<>();
-    public String[] drop = new String[collected.size()];
+    private HashMap<String, coin> collectedMap = new HashMap<>();
+    //public String[] drop = new String[collected.size()];
     String tag = "bankActivity";
     ArrayList totals;
     private int goldBal;
@@ -71,11 +70,6 @@ public class bankActivity extends AppCompatActivity {
 
         getCollected();
 
-
-        GetData gd = new GetData();
-        totals = gd.getCoinsTotal();
-        Log.d(tag, "[onCreate] " + totals.toString());
-        Log.d(tag, "[onCreate] " + QUIDtotal);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bank);
 
@@ -125,6 +119,8 @@ public class bankActivity extends AppCompatActivity {
         }
         Log.d(tag, "[onCreate] " + collected.toString());
 
+
+
     }
 
 
@@ -171,39 +167,48 @@ public class bankActivity extends AppCompatActivity {
         super.onStart();
         //txt = (TextView)findViewById(R.id.ratesView);
         //txt.setText("SHILL - " + SHILLtotal + "\nQUID - " + QUIDtotal + "\nPENY - " + PENYtotal + "\nDOLR - " + DOLRtotal);
-        Log.d(tag, "[onStart] " + QUIDtotal);
+
     }
 
     public void onDestroy(){
         super.onDestroy();
-        Log.d(tag, "[onDestroy] " + QUIDtotal);
+
     }
 
     public void getCollected(){
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-        CollectionReference walletRef = rootRef.collection("wallet(" + UID + dateDB +")");
-        walletRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        //CollectionReference walletRef = rootRef.collection("wallet(" + UID + dateDB +")");
+        CollectionReference cr = rootRef.collection("wallet").document(UID).collection("collected ("+dateDB +")");
+       cr.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (DocumentSnapshot document : task.getResult()) {
-                        coinRefs.add(walletRef.getId());
-                        coin c = document.toObject(coin.class);
-                        collected.add(c);
 
+                    for (DocumentSnapshot document : task.getResult()) {
+                        String ref = (document.getId());
+                        Log.d(tag, ref);
+                        coin c = document.toObject(coin.class);
+                        collectedMap.put(ref, c);
+                        if (!c.isBanked()){
+                            collected.add(c);
+                        }
                     }
+                    String[] drop = new String[collected.size()];
+                    Log.d(tag, "collected size " + collected.size());
                     for (int i = 0; i < collected.size(); i++){
-                        String s  = collected.get(i).getCurrency();
+                        String s  = collected.get(i).getCurrency() + ": " + collected.get(i).getValue();
                         drop[i] = s;
                     }
-
+                    Log.d(tag, collectedMap.toString());
                     spinner = (Spinner)findViewById(R.id.spinner);
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(bankActivity.this,
                             android.R.layout.simple_spinner_item, drop);
 
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     spinner.setAdapter(adapter);
-                    //spinner.setOnItemSelectedListener(this);
+                    int sp = spinner.getSelectedItemPosition();
+                    Log.d(tag, "location " + sp);
+                    //spinner.setOnItemSelectedListener(getApplicationContext());
 
 
                 }

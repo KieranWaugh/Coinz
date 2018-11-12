@@ -175,7 +175,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         String currency = jsonObject.getJSONObject("properties").getString("currency");
                         int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
                         String color = jsonObject.getJSONObject("properties").getString("marker-color");
-                        coin coin = new coin(id, value, currency, lng,lat);
+                        coin coin = new coin(id, value, currency, lng,lat,false);
                         locs.add(new LatLng(lat,lng));
                         coins.put(id, coin);
                         coinsList.add(coin);
@@ -434,7 +434,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void getCollected(){
 
-        db.collection("wallet(" + UID + dateDB + ")").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("wallet").document(UID).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
 
