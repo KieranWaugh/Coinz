@@ -77,6 +77,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
@@ -440,7 +441,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 if (e == null){
                     for (DocumentChange documentChange : documentSnapshots.getDocumentChanges()) {
-                        String collectedID=  documentChange.getDocument().getData().get("id").toString();
+                        String collectedID=  Objects.requireNonNull(documentChange.getDocument().getData().get("id")).toString();
                         Log.d(tag, "[getCollected] "+ collectedID);
                         collected.add(collectedID);
 

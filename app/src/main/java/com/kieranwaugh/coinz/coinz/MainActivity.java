@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,11 +23,21 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private String mapData = DownloadCompleteRunner.result;
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
     private FirebaseAuth auth;
+    private String UID = FirebaseAuth.getInstance().getUid();
+
 
 
 
@@ -43,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
+
         final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.bounce);
         Log.d(tag, "[onCreate] The date is " + date + " fetching map");
         SharedPreferences FromFile = getSharedPreferences("mapData", Context.MODE_PRIVATE);
@@ -57,36 +71,28 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         View view = findViewById(R.id.contentSpace);
-        view.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View view,MotionEvent event) {
-
-                if (auth.getCurrentUser() != null) {
-
-//                    ProgressDialog nDialog;
-//                    nDialog = new ProgressDialog(MainActivity.this);
-//                    nDialog.setMessage("Loading..");
-//                    nDialog.setTitle("Logging you in");
-//
-//                    nDialog.setIndeterminate(false);
-//                    nDialog.setCancelable(true);
-//                    nDialog.show();
-                    //setProgressDialog();
-
-                    ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.bottom_up, R.anim.nothing);
-                    startActivity(new Intent(MainActivity.this, mapActivity.class), options.toBundle());
-
-                }else{
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, findViewById(R.id.imageView), "transition");
-                    startActivity(intent, options.toBundle());
+        ArrayList<String> goldRefs = new ArrayList<>();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference cr = db.collection("bank");
+        cr.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                    Log.d(tag, "in loop");
+                    String ref = (document.getId());
+                    Log.d(tag, ref);
+                    goldRefs.add(ref);
                 }
-
-                return true;
-
+            }
+            Log.d(tag, goldRefs.toString());
+            if (!goldRefs.contains(UID)){
+                Log.d(tag,"[onCreate] User does Not Exist");
+                Gold gold = new Gold(0.0);
+                db.collection("bank").document(UID).collection("gold").add(gold);
+            }else{
+                Log.d(tag,"[onCreate] User does Not Exist");
             }
         });
+
 
         final Button playButton = (Button) findViewById(R.id.PlayButton);
         playButton.setOnClickListener(new View.OnClickListener(){

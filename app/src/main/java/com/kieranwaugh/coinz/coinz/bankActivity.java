@@ -27,10 +27,14 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
 import org.json.JSONException;
@@ -42,8 +46,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 
 public class bankActivity extends AppCompatActivity {
     public String mapData;
@@ -62,7 +68,7 @@ public class bankActivity extends AppCompatActivity {
     private LinkedHashMap<String, coin> collectedMap = new LinkedHashMap<>();
     String tag = "bankActivity";
     //ArrayList totals;
-    private int goldBal;
+    private double goldBal;
     //private TextView txt;
     String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     String UID = FirebaseAuth.getInstance().getUid();
@@ -70,11 +76,14 @@ public class bankActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setContentView(R.layout.activity_bank);
+        bankButton = (Button) findViewById(R.id.bankButton);
+        bankButton.setOnClickListener(bankClick);
 
         getCollected();
-
+        getRates();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bank);
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(2);
@@ -102,7 +111,6 @@ public class bankActivity extends AppCompatActivity {
 
         try {
 
-            getRates();
             JSONObject json = new JSONObject(mapData);
             SHILLrate = json.getJSONObject("rates").getDouble("SHIL");
             QUIDrate = json.getJSONObject("rates").getDouble("QUID");
@@ -114,9 +122,8 @@ public class bankActivity extends AppCompatActivity {
         }
         Log.d(tag, "[onCreate] " + collected.toString());
         txt = (TextView)findViewById(R.id.ratesView);
-        txt.setText("SHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
-        goldBalView = findViewById(R.id.goldBalView);
-        goldBalView.setText("Gold Balance: " + goldBal);
+        txt.setText("Daily Exchange Rates:\nSHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
+
 
 
 
@@ -154,6 +161,21 @@ public class bankActivity extends AppCompatActivity {
         String savedMapData = "mapData";
         SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
         mapData = FromFile.getString(date, "");
+
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+        CollectionReference cr = rootRef.collection("bank").document(UID).collection("gold");
+        cr.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                    goldBal = Double.parseDouble(Objects.requireNonNull(document.get("balance")).toString());
+                }
+
+                goldBalView = findViewById(R.id.goldBalView);
+                goldBalView.setText("Gold Balance: " + goldBal);
+                Log.d(tag, "[getRates] " + goldBal);
+            }
+        });
+
     }
 
     @Override
@@ -232,17 +254,46 @@ public class bankActivity extends AppCompatActivity {
            }
        });
 
-       bankButton = findViewById(R.id.bankButton);
-//       bankButton.setOnClickListener(v -> {
-////           if (selectedCoin != 51){
-////
-////           }
-//       });
 
 
     }
 
+    private View.OnClickListener bankClick = new View.OnClickListener(){
 
-    }
+        @Override
+        public void onClick(View v) {
+            if (selectedCoin != 51){
+                List<String> docRefs = new ArrayList<>(collectedMap.keySet());
+                String reference = docRefs.get(selectedCoin);
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("wallet").document(UID).collection("collected ("+dateDB +")").document(reference).update("banked",true);
+                coin c = collectedMap.get(reference);
+                double gold = goldBal;
+
+                switch(c.getCurrency()){
+                    case ("DOLR"):
+                        gold += DOLRrate * c.getValue();
+                    case ("QUID"):
+                        gold += QUIDrate * c.getValue();
+                    case ("SHIL"):
+                        gold += SHILLrate * c.getValue();
+                    case ("PENY"):
+                        gold += PENYrate * c.getValue();
+                    }
+                goldBalView.setText("Gold Balance: " + gold);
+
+
+                collected.remove(collectedMap.get(reference));
+                }
+
+
+
+
+            }
+        };
+}
+
+
+
 
 
