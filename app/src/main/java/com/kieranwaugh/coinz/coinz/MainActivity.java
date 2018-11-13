@@ -71,27 +71,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         View view = findViewById(R.id.contentSpace);
-        ArrayList<String> goldRefs = new ArrayList<>();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference cr = db.collection("bank");
-        cr.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                    Log.d(tag, "in loop");
-                    String ref = (document.getId());
-                    Log.d(tag, ref);
-                    goldRefs.add(ref);
-                }
-            }
-            Log.d(tag, goldRefs.toString());
-            if (!goldRefs.contains(UID)){
-                Log.d(tag,"[onCreate] User does Not Exist");
-                Gold gold = new Gold(0.0);
-                db.collection("bank").document(UID).collection("gold").add(gold);
-            }else{
-                Log.d(tag,"[onCreate] User does Not Exist");
-            }
-        });
+//        ArrayList<String> goldRefs = new ArrayList<>();
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        CollectionReference cr = db.collection("bank");
+//        cr.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+//                    Log.d(tag, "in loop");
+//                    String ref = (document.getId());
+//                    Log.d(tag, ref);
+//                    goldRefs.add(ref);
+//                }
+//            }
+//            Log.d(tag, goldRefs.toString());
+//            if (!goldRefs.contains(UID)){
+//                Log.d(tag,"[onCreate] User does Not Exist");
+//                Gold gold = new Gold(0.0);
+//                db.collection("bank").document(UID).collection("gold").add(gold);
+//            }else{
+//                Log.d(tag,"[onCreate] User does Not Exist");
+//            }
+//        });
 
 
         final Button playButton = (Button) findViewById(R.id.PlayButton);

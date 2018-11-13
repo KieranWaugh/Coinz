@@ -1,5 +1,6 @@
 package com.kieranwaugh.coinz.coinz;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.content.Context;
 
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 
 
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,10 +59,8 @@ public class bankActivity extends AppCompatActivity {
     public double QUIDrate;
     public double PENYrate;
     public double DOLRrate;
-    private TextView txt;
     private TextView goldBalView;
     private Spinner spinner;
-    private Button bankButton;
     private int selectedCoin;
     private int bankedCount;
     //public ArrayList <String> coinRefs = new ArrayList<>();
@@ -77,7 +77,7 @@ public class bankActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_bank);
-        bankButton = (Button) findViewById(R.id.bankButton);
+        Button bankButton =findViewById(R.id.bankButton);
         bankButton.setOnClickListener(bankClick);
 
         getCollected();
@@ -121,7 +121,7 @@ public class bankActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Log.d(tag, "[onCreate] " + collected.toString());
-        txt = (TextView)findViewById(R.id.ratesView);
+        TextView txt = findViewById(R.id.ratesView);
         txt.setText("Daily Exchange Rates:\nSHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
 
 
@@ -170,10 +170,12 @@ public class bankActivity extends AppCompatActivity {
                     goldBal = Double.parseDouble(Objects.requireNonNull(document.get("balance")).toString());
                 }
 
-                goldBalView = findViewById(R.id.goldBalView);
-                goldBalView.setText("Gold Balance: " + goldBal);
-                Log.d(tag, "[getRates] " + goldBal);
+
             }
+
+            goldBalView = findViewById(R.id.goldBalView);
+            goldBalView.setText("Gold Balance: " + goldBal);
+            Log.d(tag, "[getRates] " + goldBal);
         });
 
     }
@@ -213,6 +215,7 @@ public class bankActivity extends AppCompatActivity {
                        collected.add(c);
                    }else{
                        bankedCount +=1;
+                       Log.d(tag, "no banked " + bankedCount);
                    }
                }
                String[] drop = new String[collected.size() + 1];
@@ -260,37 +263,68 @@ public class bankActivity extends AppCompatActivity {
 
     private View.OnClickListener bankClick = new View.OnClickListener(){
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void onClick(View v) {
-            if (selectedCoin != 51){
-                List<String> docRefs = new ArrayList<>(collectedMap.keySet());
-                String reference = docRefs.get(selectedCoin);
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("wallet").document(UID).collection("collected ("+dateDB +")").document(reference).update("banked",true);
-                coin c = collectedMap.get(reference);
-                double gold = goldBal;
-
-                switch(c.getCurrency()){
-                    case ("DOLR"):
-                        gold += DOLRrate * c.getValue();
-                    case ("QUID"):
-                        gold += QUIDrate * c.getValue();
-                    case ("SHIL"):
-                        gold += SHILLrate * c.getValue();
-                    case ("PENY"):
-                        gold += PENYrate * c.getValue();
-                    }
-                goldBalView.setText("Gold Balance: " + gold);
-
-
-                collected.remove(collectedMap.get(reference));
+            if (bankedCount > 25){
+                if (selectedCoin !=51){
+                    Snackbar.make(findViewById(R.id.viewSnack), "You have already banked 25 coins today!", Snackbar.LENGTH_LONG).show();
                 }
 
+            }else{
+                if (selectedCoin != 51){
+                    List<String> docRefs = new ArrayList<>(collectedMap.keySet());
+                    String reference = docRefs.get(selectedCoin);
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("wallet").document(UID).collection("collected ("+dateDB +")").document(reference).update("banked",true);
+                    coin c = collectedMap.get(reference);
+                    double gold = goldBal;
 
+                    assert c != null;
+                    switch(c.getCurrency()){
+                        case ("DOLR"):
+                            gold += DOLRrate * c.getValue();
+                            goldBal = gold;
+                        case ("QUID"):
+                            gold += QUIDrate * c.getValue();
+                            goldBal = gold;
+                        case ("SHIL"):
+                            gold += SHILLrate * c.getValue();
+                            goldBal = gold;
+                        case ("PENY"):
+                            gold += PENYrate * c.getValue();
+                            goldBal = gold;
+                    }
+                    goldBalView.setText("Gold Balance: " + gold);
+                    Log.d(tag, "new gold bal " + goldBal);
+                    String[] ref = new String[1];
+                    CollectionReference cr = db.collection("bank").document(UID).collection("gold");
+                    double finalGold = gold;
+                    cr.get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                ref[0] = document.getId();
+                            }
+
+                        }
+                        Log.d(tag, "id is " + ref[0]);
+                        db.collection("bank").document(UID).collection("gold").document(ref[0]).update("balance", finalGold);
+                        //Snackbar.make(findViewById(R.id.viewSnack), "Banked " + c.getCurrency() + " of value " + c.getValue() ,Snackbar.LENGTH_LONG).show();
+
+                        collected.remove(collectedMap.get(reference));
+                        finish();
+                        ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in_refresh, R.anim.fade_out_refresh);
+                        startActivity(getIntent(), options.toBundle()); // refreshes the activity to update gold and spinner list
+                    });
+
+                }
+            }
 
 
             }
         };
+
+
 }
 
 

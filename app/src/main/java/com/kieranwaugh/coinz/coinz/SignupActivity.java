@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -105,6 +106,10 @@ public class SignupActivity extends AppCompatActivity {
                                     //Toast.makeText(SignupActivity.this, "Authentication failed." + task.getException(), Toast.LENGTH_SHORT).show();
                                     Snackbar.make(findViewById(R.id.viewSnack), "Problem signing you up." + task.getException(),Snackbar.LENGTH_LONG).show();
                                 } else {
+                                    String UID = FirebaseAuth.getInstance().getUid();
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    Gold gold = new Gold(0.0);
+                                    db.collection("bank").document(UID).collection("gold").add(gold);
                                     ActivityOptions options = ActivityOptions.makeCustomAnimation(SignupActivity.this, R.anim.nothing, R.anim.bottom_up);
                                     startActivity(new Intent(SignupActivity.this, mapActivity.class), options.toBundle());
                                     finish();

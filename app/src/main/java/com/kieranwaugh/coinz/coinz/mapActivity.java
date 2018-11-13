@@ -99,6 +99,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         public ArrayList<coin> coinsList = new ArrayList<>();
         public HashMap<LatLng, String> markerID= new HashMap<>();
         public ArrayList<String> collected = new ArrayList<>();
+        private ArrayList<Marker> markers = new ArrayList<>();
         ArrayList<LatLng> locs= new ArrayList<LatLng>();
         String UID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -188,12 +189,16 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         //Icon icon = new Icon();
 
                         if (!collected.contains(id)){
+                            Marker m = new Marker(new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue));
+                            markers.add(m);
                             mapboxMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(lat,lng))
                                     .title(currency)
                                     .setSnippet("Value: " + strValue)
                                     //.icon(BitmapDescriptorFactory.fromBitmap(bmp))
                             );
+
+
                         }else{
                             continue;
                         }
@@ -298,6 +303,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         public void onLocationChanged(Location location) {
             if (location == null) {
                 Log.d(tag, "[onLocationChanged] location is null");
+
             }else{
                 Log.d(tag, "[onLocationChanged] location is not null");
                 originLocation = location;
@@ -389,6 +395,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
 
         }
+
+
 
         @Override
         public void onLowMemory(){
