@@ -29,14 +29,12 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import com.google.firebase.firestore.EventListener;
+
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
+
+
 
 
 import org.json.JSONException;
@@ -46,12 +44,12 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
+
 
 public class bankActivity extends AppCompatActivity {
     public String mapData;
@@ -63,6 +61,7 @@ public class bankActivity extends AppCompatActivity {
     private Spinner spinner;
     private int selectedCoin;
     private int bankedCount;
+    private Button popup;
     //public ArrayList <String> coinRefs = new ArrayList<>();
     public ArrayList<coin> collected = new ArrayList<>();
     private LinkedHashMap<String, coin> collectedMap = new LinkedHashMap<>();
@@ -124,7 +123,14 @@ public class bankActivity extends AppCompatActivity {
         TextView txt = findViewById(R.id.ratesView);
         txt.setText("Daily Exchange Rates:\nSHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
 
-
+        popup = findViewById(R.id.popup);
+        popup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(bankActivity.this, BankWindow.class);
+                startActivity(i);
+            }
+        });
 
 
     }
@@ -169,13 +175,13 @@ public class bankActivity extends AppCompatActivity {
                 for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                     goldBal = Double.parseDouble(Objects.requireNonNull(document.get("balance")).toString());
                 }
-
+                updateGoldUI(goldBal);
 
             }
 
-            goldBalView = findViewById(R.id.goldBalView);
-            goldBalView.setText("Gold Balance: " + goldBal);
-            Log.d(tag, "[getRates] " + goldBal);
+//            goldBalView = findViewById(R.id.goldBalView);
+//            goldBalView.setText("Gold Balance: " + goldBal);
+//            Log.d(tag, "[getRates] " + goldBal);
         });
 
     }
@@ -218,42 +224,7 @@ public class bankActivity extends AppCompatActivity {
                        Log.d(tag, "no banked " + bankedCount);
                    }
                }
-               String[] drop = new String[collected.size() + 1];
-               drop[0] = "Select coin to bank.";
-               for (int i = 0; i < collected.size(); i++){
-                   String s  = collected.get(i).getCurrency() + ": " + collected.get(i).getValue();
-                   drop[i+1] = s;
-               }
-               Log.d(tag, collectedMap.toString());
-               spinner = findViewById(R.id.spinner);
-               ArrayAdapter<String> adapter = new ArrayAdapter<>(bankActivity.this,
-                       android.R.layout.simple_spinner_item, drop);
-
-               adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-               spinner.setAdapter(adapter);
-
-               spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-                   @Override
-                   public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                       int sp = spinner.getSelectedItemPosition();
-                       if (sp != 0) {
-                           selectedCoin = sp-1;
-
-                       }else{
-                           selectedCoin = 51; // not possible ot get 51 coins, hence shows first list item has been selected
-                       }
-                       Log.d(tag, "[getCollected] " + selectedCoin);
-
-                   }
-
-                   @Override
-                   public void onNothingSelected(AdapterView<?> parent) {
-                   }
-               });
-
-
-
+                updateSpinnerUI(collected);
            }
        });
 
@@ -295,7 +266,7 @@ public class bankActivity extends AppCompatActivity {
                             gold += PENYrate * c.getValue();
                             goldBal = gold;
                     }
-                    goldBalView.setText("Gold Balance: " + gold);
+
                     Log.d(tag, "new gold bal " + goldBal);
                     String[] ref = new String[1];
                     CollectionReference cr = db.collection("bank").document(UID).collection("gold");
@@ -305,16 +276,16 @@ public class bankActivity extends AppCompatActivity {
                             for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 ref[0] = document.getId();
                             }
-
                         }
-                        Log.d(tag, "id is " + ref[0]);
                         db.collection("bank").document(UID).collection("gold").document(ref[0]).update("balance", finalGold);
                         //Snackbar.make(findViewById(R.id.viewSnack), "Banked " + c.getCurrency() + " of value " + c.getValue() ,Snackbar.LENGTH_LONG).show();
 
+
                         collected.remove(collectedMap.get(reference));
-                        finish();
-                        ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in_refresh, R.anim.fade_out_refresh);
-                        startActivity(getIntent(), options.toBundle()); // refreshes the activity to update gold and spinner list
+                        getCollected();
+                        updateSpinnerUI(collected);
+                        updateGoldUI(goldBal);
+
                     });
 
                 }
@@ -323,6 +294,53 @@ public class bankActivity extends AppCompatActivity {
 
             }
         };
+
+
+    public void updateSpinnerUI(ArrayList<coin> collected){
+        String[] drop = new String[collected.size() + 1];
+        drop[0] = "Select coin to bank.";
+        for (int i = 0; i < collected.size(); i++){
+            String s  = collected.get(i).getCurrency() + ": " + collected.get(i).getValue();
+            drop[i+1] = s;
+        }
+        Log.d(tag, collectedMap.toString());
+        spinner = findViewById(R.id.spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(bankActivity.this,
+                android.R.layout.simple_spinner_item, drop);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int sp = spinner.getSelectedItemPosition();
+                if (sp != 0) {
+                    selectedCoin = sp-1;
+
+                }else{
+                    selectedCoin = 51; // not possible ot get 51 coins, hence shows first list item has been selected
+                }
+                Log.d(tag, "[getCollected] " + selectedCoin);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+
+    }
+
+    public void updateGoldUI(double gold){
+        goldBalView = findViewById(R.id.goldBalView);
+        goldBalView.setText("Gold Balance: " + gold);
+    }
+
+
+
 
 
 }

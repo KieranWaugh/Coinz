@@ -3,7 +3,8 @@ package com.kieranwaugh.coinz.coinz;
 
 import android.util.Log;
 
-import java.util.ArrayList;
+import com.mapbox.mapboxsdk.annotations.Marker;
+
 import java.util.HashMap;
 
 public class coin {
@@ -14,6 +15,7 @@ public class coin {
     public double lng;
     public double lat;
     private boolean banked;
+
     private HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
 
 
@@ -21,13 +23,14 @@ public class coin {
 
     }
 
-    public coin(String id, double value, String currency, double lng, double lat, boolean banked){
+    public coin(String id, double value, String currency, double lng, double lat, boolean banked ){
         this.id = id;
         this.value = value;
         this.currency = currency;
         this.lng = lng;
         this.lat = lat;
         this.banked = banked;
+
         Log.d("Coin", "[coin] Created coin with id " + id);
     }
 
@@ -60,6 +63,10 @@ public class coin {
     public boolean isBanked() {
         return banked;
     }
+
+//    public Marker getMarker() {
+//        return marker;
+//    }
 
     public String getString(){
         return id + " - " + currency;

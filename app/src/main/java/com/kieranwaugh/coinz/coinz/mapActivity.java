@@ -34,6 +34,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.android.core.location.LocationEngine;
@@ -49,6 +50,7 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.MarkerView;
 import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -79,7 +81,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-
+@IgnoreExtraProperties
 public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
 
@@ -95,11 +97,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         private final String savedMapData = "mapData";
         String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
         String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        public HashMap<String, coin> coins= new HashMap<>(); //all coins with an identifier
-        public ArrayList<coin> coinsList = new ArrayList<>();
-        public HashMap<LatLng, String> markerID= new HashMap<>();
+        public List<coin> coinsList = new ArrayList<>();
+        public HashMap<String, Marker> markers= new HashMap<>();
         public ArrayList<String> collected = new ArrayList<>();
-        private ArrayList<Marker> markers = new ArrayList<>();
         ArrayList<LatLng> locs= new ArrayList<LatLng>();
         String UID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -177,11 +177,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         String currency = jsonObject.getJSONObject("properties").getString("currency");
                         int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
                         String color = jsonObject.getJSONObject("properties").getString("marker-color");
-                        coin coin = new coin(id, value, currency, lng,lat,false);
-                        locs.add(new LatLng(lat,lng));
-                        coins.put(id, coin);
-                        coinsList.add(coin);
-                        markerID.put(new LatLng(lat,lng), id);
+
 
                         //URL url = new URL("http://chart.googleapis.com/chart?chst=d_map_pin_letter&chld="+markerSymbol+"|"+color.substring(1, color.length())+"|000000&.png");
                         //Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
@@ -189,16 +185,11 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         //Icon icon = new Icon();
 
                         if (!collected.contains(id)){
-                            Marker m = new Marker(new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue));
-                            markers.add(m);
-                            mapboxMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(lat,lng))
-                                    .title(currency)
-                                    .setSnippet("Value: " + strValue)
-                                    //.icon(BitmapDescriptorFactory.fromBitmap(bmp))
-                            );
-
-
+                            MarkerOptions mo = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue);
+                            Marker m = mapboxMap.addMarker(mo);
+                            coin coin = new coin(id, value, currency, lng,lat,false);
+                            coinsList.add(coin);
+                            markers.put(id, m);
                         }else{
                             continue;
                         }
@@ -208,45 +199,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }
                 }
             }
-
-
-
-            mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(@NonNull Marker marker) {
-
-                    if (originLocation == null){
-                        Snackbar.make(findViewById(R.id.viewSnack), "Trying to find your location.",Snackbar.LENGTH_LONG).show();
-                        return false;
-                    }else if (collectOK(marker.getPosition())){
-                        marker.remove();
-                        Snackbar.make(findViewById(R.id.viewSnack), "Collected " + marker.getTitle() + " of  " + marker.getSnippet(),Snackbar.LENGTH_LONG).show();
-                        String coinId = markerID.get(marker.getPosition());
-                        coin c = coins.get(coinId);
-                        db.collection("wallet").document(UID).collection("collected ("+dateDB +")")
-                                .add(c)
-                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                    @Override
-                                    public void onSuccess(DocumentReference documentReference) {
-                                        Log.d(tag, "coin collected with id " + coinId);
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(tag, "Error collecting coin", e);
-                                    }
-                                });
-
-                        return true;
-                    } else{
-                        Snackbar.make(findViewById(R.id.viewSnack), "Not close enough to collect this coin!",Snackbar.LENGTH_LONG).show();
-                        return false;
-                    }
-
-                    //return false;
-                }
-            });
         }
 
         private void enableLocation() {
@@ -308,6 +260,32 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d(tag, "[onLocationChanged] location is not null");
                 originLocation = location;
                 setCameraPosition(location);
+
+                for (int i = 0; i < coinsList.size(); i++){
+                    coin coin = coinsList.get(i);
+                    Marker m = (markers.get(coin.getId()));
+                    assert m != null;
+                    LatLng loc = m.getPosition();
+                    if (collectOK(loc)){
+                        map.removeMarker(m);
+                        Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
+                        db.collection("wallet").document(UID).collection("collected ("+dateDB +")")
+                                .add(coin)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Log.d(tag, "coin collected with id " + coin.getId());
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(tag, "Error collecting coin", e);
+                                    }
+                                });
+                    }
+                }
+
             }
 
         }
