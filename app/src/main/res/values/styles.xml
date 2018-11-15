@@ -24,6 +24,7 @@
     <style name="AppTheme.PopupOverlay" parent="Base.Theme.AppCompat.Light.DarkActionBar">
         <item name="windowActionBar">false</item>
         <item name ="windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/rounded_corners</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
