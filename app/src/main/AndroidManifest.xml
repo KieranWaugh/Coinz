@@ -42,9 +42,13 @@
         <activity
             android:name=".ResetPasswordActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".BankWindow"
-            android:theme="@style/AppTheme.PopupOverlay"
-            />
+        <activity
+            android:name=".BankWindow"
+            android:theme="@style/AppTheme.PopupOverlay" />
+        <activity
+            android:name=".TransferWindow"
+            android:theme="@style/AppTheme.PopupOverlay"/>
+
     </application>
 
 </manifest>

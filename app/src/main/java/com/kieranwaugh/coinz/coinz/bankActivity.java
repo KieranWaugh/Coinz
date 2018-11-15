@@ -78,6 +78,8 @@ public class bankActivity extends AppCompatActivity {
         setContentView(R.layout.activity_bank);
         Button bankButton =findViewById(R.id.bankButton);
         bankButton.setOnClickListener(bankClick);
+        Button transferButton = findViewById(R.id.transferButton);
+        transferButton.setOnClickListener(transferClick);
 
         getCollected();
         getRates();
@@ -120,8 +122,8 @@ public class bankActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Log.d(tag, "[onCreate] " + collected.toString());
-        TextView txt = findViewById(R.id.ratesView);
-        txt.setText("Daily Exchange Rates:\nSHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
+//        TextView txt = findViewById(R.id.ratesView);
+//        txt.setText("Daily Exchange Rates:\nSHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
 
 
 
@@ -271,6 +273,15 @@ public class bankActivity extends AppCompatActivity {
             }
         };
 
+    private View.OnClickListener transferClick = new View.OnClickListener(){
+
+        @Override
+        public void onClick(View v) {
+            Intent i = new Intent(bankActivity.this, TransferWindow.class);
+            startActivity(i);
+        }
+    };
+
 
     public void updateSpinnerUI(ArrayList<coin> collected){
         String[] drop = new String[collected.size() + 1];
@@ -312,7 +323,7 @@ public class bankActivity extends AppCompatActivity {
 
     public void updateGoldUI(double gold){
         goldBalView = findViewById(R.id.goldBalView);
-        goldBalView.setText("Gold Balance: " + gold);
+        goldBalView.setText(gold + " GOLD");
     }
 
 
