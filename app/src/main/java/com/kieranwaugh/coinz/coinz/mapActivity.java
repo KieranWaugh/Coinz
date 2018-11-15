@@ -99,6 +99,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         public List<coin> coinsList = new ArrayList<>();
         public HashMap<String, Marker> markers= new HashMap<>();
+        public ArrayList<Marker> collectedMarkers = new ArrayList<>();
         public ArrayList<String> collected = new ArrayList<>();
         ArrayList<LatLng> locs= new ArrayList<LatLng>();
         String UID = FirebaseAuth.getInstance().getUid();
@@ -264,26 +265,30 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 for (int i = 0; i < coinsList.size(); i++){
                     coin coin = coinsList.get(i);
                     Marker m = (markers.get(coin.getId()));
-                    assert m != null;
-                    LatLng loc = m.getPosition();
-                    if (collectOK(loc)){
-                        map.removeMarker(m);
-                        Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
-                        db.collection("wallet").document(UID).collection("collected ("+dateDB +")")
-                                .add(coin)
-                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                    @Override
-                                    public void onSuccess(DocumentReference documentReference) {
-                                        Log.d(tag, "coin collected with id " + coin.getId());
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(tag, "Error collecting coin", e);
-                                    }
-                                });
+                    if (!collectedMarkers.contains(m)){
+                        assert m != null;
+                        LatLng loc = m.getPosition();
+                        if (collectOK(loc)){
+                            collectedMarkers.add(m);
+                            map.removeMarker(m);
+                            Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
+                            db.collection("wallet").document(UID).collection("collected ("+dateDB +")")
+                                    .add(coin)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Log.d(tag, "coin collected with id " + coin.getId());
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(tag, "Error collecting coin", e);
+                                        }
+                                    });
+                        }
                     }
+
                 }
 
             }
