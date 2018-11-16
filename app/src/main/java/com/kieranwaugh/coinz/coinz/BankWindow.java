@@ -27,6 +27,7 @@ public class BankWindow extends AppCompatActivity {
     Button bankButton;
     String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     String UID = FirebaseAuth.getInstance().getUid();
+    private String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -43,28 +44,28 @@ public class BankWindow extends AppCompatActivity {
         coin c = (coin) intent.getSerializableExtra("coin");
         double gold = (double) intent.getDoubleExtra("gold", 0.0);
         String reference = (String) intent.getStringExtra("reference");
+        double rate = (double) intent.getDoubleExtra("rate", 0.0);
         curView = findViewById(R.id.currencyConfirm);
         curView.setText(c.getCurrency() + ": " + c.getValue());
         goldView = findViewById(R.id.goldConfirm);
-        goldView.setText(gold + " GOLD");
+        goldView.setText(c.getValue()*rate + " GOLD");
 
         bankButton = findViewById(R.id.bankButton);
         bankButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("wallet").document(UID).collection("collected (" + dateDB + ")").document(reference).update("banked", true);
+                db.collection("wallet").document(email).collection("collected (" + dateDB + ")").document(reference).update("banked", true);
 
                 String[] ref = new String[1];
-                CollectionReference cr = db.collection("bank").document(UID).collection("gold");
-                double finalGold = gold;
+                CollectionReference cr = db.collection("bank").document(email).collection("gold");
                 cr.get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                             ref[0] = document.getId();
                         }
                     }
-                    db.collection("bank").document(UID).collection("gold").document(ref[0]).update("balance", finalGold);
+                    db.collection("bank").document(email).collection("gold").document(ref[0]).update("balance", gold +(c.getValue() * rate));
 
                     Intent refresh = new Intent(BankWindow.this, bankActivity.class);
                     ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.nothing);

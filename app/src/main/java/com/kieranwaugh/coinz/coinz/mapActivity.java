@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -88,12 +90,12 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         private String tag = "MapActivity";
         private MapView mapView;
         private MapboxMap map;
-
         private PermissionsManager permissionsManager;
         private LocationEngine locationEngine;
         private LocationLayerPlugin locationLayerPlugin;
         private Location originLocation;
         public String mapData;
+        private FloatingActionButton collectButton;
         private final String savedMapData = "mapData";
         String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
         String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
@@ -104,6 +106,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         ArrayList<LatLng> locs= new ArrayList<LatLng>();
         String UID = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        private String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
 
 
@@ -145,6 +148,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);
             getCollected();
+        collectButton = findViewById(R.id.floatingActionButton2);
+        collectButton.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -269,23 +274,33 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         assert m != null;
                         LatLng loc = m.getPosition();
                         if (collectOK(loc)){
-                            collectedMarkers.add(m);
-                            map.removeMarker(m);
-                            Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
-                            db.collection("wallet").document(UID).collection("collected ("+dateDB +")")
-                                    .add(coin)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(tag, "coin collected with id " + coin.getId());
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(tag, "Error collecting coin", e);
-                                        }
-                                    });
+                            collectButton.setVisibility(View.VISIBLE);
+                            collectButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    collectedMarkers.add(m);
+                                    map.removeMarker(m);
+
+                                    db.collection("wallet").document(email).collection("collected ("+dateDB +")")
+                                            .add(coin)
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Log.d(tag, "coin collected with id " + coin.getId());
+                                                    collectButton.setVisibility(View.INVISIBLE);
+                                                    Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
+
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(tag, "Error collecting coin", e);
+                                                }
+                                            });
+                                }
+                            });
+
                         }
                     }
 
@@ -426,7 +441,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void getCollected(){
 
-        db.collection("wallet").document(UID).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("wallet").document(email).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
 

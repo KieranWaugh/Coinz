@@ -57,11 +57,10 @@ public class bankActivity extends AppCompatActivity {
     public double QUIDrate;
     public double PENYrate;
     public double DOLRrate;
-    private TextView goldBalView;
     private Spinner spinner;
     private int selectedCoin;
     private int bankedCount;
-    private Button popup;
+    //private Button popup;
     //public ArrayList <String> coinRefs = new ArrayList<>();
     public ArrayList<coin> collected = new ArrayList<>();
     private LinkedHashMap<String, coin> collectedMap = new LinkedHashMap<>();
@@ -70,7 +69,8 @@ public class bankActivity extends AppCompatActivity {
     private double goldBal;
     //private TextView txt;
     String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-    String UID = FirebaseAuth.getInstance().getUid();
+    //String UID = FirebaseAuth.getInstance().getUid();
+    private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
 
 
     @Override
@@ -163,7 +163,7 @@ public class bankActivity extends AppCompatActivity {
         mapData = FromFile.getString(date, "");
 
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-        CollectionReference cr = rootRef.collection("bank").document(UID).collection("gold");
+        CollectionReference cr = rootRef.collection("bank").document(email).collection("gold");
         cr.get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
@@ -200,7 +200,7 @@ public class bankActivity extends AppCompatActivity {
 
     public void getCollected(){
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-        CollectionReference cr = rootRef.collection("wallet").document(UID).collection("collected ("+dateDB +")");
+        CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
        cr.get().addOnCompleteListener(task -> {
            if (task.isSuccessful()) {
 
@@ -242,27 +242,22 @@ public class bankActivity extends AppCompatActivity {
                     String reference = docRefs.get(selectedCoin);
 
                     coin c = collectedMap.get(reference);
-                    double gold = goldBal;
-
+                    Intent popupIntent = new Intent(bankActivity.this, BankWindow.class);
                     assert c != null;
                     switch(c.getCurrency()){
                         case ("DOLR"):
-                            gold += DOLRrate * c.getValue();
-                            goldBal = gold;
+                            popupIntent.putExtra("rate", DOLRrate);
                         case ("QUID"):
-                            gold += QUIDrate * c.getValue();
-                            goldBal = gold;
+                            popupIntent.putExtra("rate", QUIDrate);
                         case ("SHIL"):
-                            gold += SHILLrate * c.getValue();
-                            goldBal = gold;
+                            popupIntent.putExtra("rate", SHILLrate);
                         case ("PENY"):
-                            gold += PENYrate * c.getValue();
-                            goldBal = gold;
+                            popupIntent.putExtra("rate", PENYrate);
                     }
 
-                    Intent popupIntent = new Intent(bankActivity.this, BankWindow.class);
+
                     popupIntent.putExtra("coin", c);
-                    popupIntent.putExtra("gold", gold);
+                    popupIntent.putExtra("gold", goldBal);
                     popupIntent.putExtra("reference", reference);
                     startActivity(popupIntent);
 
@@ -277,15 +272,45 @@ public class bankActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            Intent i = new Intent(bankActivity.this, TransferWindow.class);
-            startActivity(i);
+            if (bankedCount > 25){
+                if (selectedCoin !=51){
+                    Snackbar.make(findViewById(R.id.viewSnack), "You have already banked 25 coins today!", Snackbar.LENGTH_LONG).show();
+                }
+
+            }else{
+                if (selectedCoin != 51){
+                    List<String> docRefs = new ArrayList<>(collectedMap.keySet());
+                    String reference = docRefs.get(selectedCoin);
+
+                    coin c = collectedMap.get(reference);
+                    Intent popupIntent = new Intent(bankActivity.this, TransferWindow.class);
+                    assert c != null;
+                    switch(c.getCurrency()){
+                        case ("DOLR"):
+                            popupIntent.putExtra("rate", DOLRrate);
+                        case ("QUID"):
+                            popupIntent.putExtra("rate", QUIDrate);
+                        case ("SHIL"):
+                            popupIntent.putExtra("rate", SHILLrate);
+                        case ("PENY"):
+                            popupIntent.putExtra("rate", PENYrate);
+                    }
+
+
+                    popupIntent.putExtra("coin", c);
+                    popupIntent.putExtra("gold", goldBal);
+                    popupIntent.putExtra("reference", reference);
+                    startActivity(popupIntent);
+
+                }
+            }
         }
     };
 
 
     public void updateSpinnerUI(ArrayList<coin> collected){
         String[] drop = new String[collected.size() + 1];
-        drop[0] = "Select coin to bank.";
+        drop[0] = "Select coin.";
         for (int i = 0; i < collected.size(); i++){
             String s  = collected.get(i).getCurrency() + ": " + collected.get(i).getValue();
             drop[i+1] = s;
@@ -322,7 +347,7 @@ public class bankActivity extends AppCompatActivity {
     }
 
     public void updateGoldUI(double gold){
-        goldBalView = findViewById(R.id.goldBalView);
+        TextView goldBalView = findViewById(R.id.goldBalView);
         goldBalView.setText(gold + " GOLD");
     }
 

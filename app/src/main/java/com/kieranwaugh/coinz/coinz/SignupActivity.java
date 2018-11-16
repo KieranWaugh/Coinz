@@ -109,7 +109,8 @@ public class SignupActivity extends AppCompatActivity {
                                     String UID = FirebaseAuth.getInstance().getUid();
                                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                                     Gold gold = new Gold(0.0);
-                                    db.collection("bank").document(UID).collection("gold").add(gold);
+                                    //db.collection("users").document(email).collection(UID).add(gold);
+                                    db.collection("bank").document(email).collection("gold").add(gold);
                                     ActivityOptions options = ActivityOptions.makeCustomAnimation(SignupActivity.this, R.anim.nothing, R.anim.bottom_up);
                                     startActivity(new Intent(SignupActivity.this, mapActivity.class), options.toBundle());
                                     finish();
