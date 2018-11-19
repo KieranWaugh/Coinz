@@ -29,6 +29,8 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -157,17 +159,16 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                             double value = jsonObject.getJSONObject("properties").getDouble("value");
                             String strValue = String.valueOf(value);
                             String currency = jsonObject.getJSONObject("properties").getString("currency");
-                            //int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
-                            //String color = jsonObject.getJSONObject("properties").getString("marker-color");
+                            int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
+                            String color = jsonObject.getJSONObject("properties").getString("marker-color");
 
-
-                            //URL url = new URL("http://chart.googleapis.com/chart?chst=d_map_pin_letter&chld="+markerSymbol+"|"+color.substring(1, color.length())+"|000000&.png");
-                            //Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                            //BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(bmp);
-                            //Icon icon = new Icon();
 
                             if (!collected.contains(id)){
-                                MarkerOptions mo = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue);
+                                Context cxt = getApplicationContext();
+                                int iconInt = getIcon("marker_"+color.substring(1, color.length())+"_"+ markerSymbol, cxt);
+                                IconFactory iconFactory = IconFactory.getInstance(this);
+                                Icon icon =  iconFactory.fromResource(iconInt);
+                                MarkerOptions mo = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon);
                                 Marker m = mapboxMap.addMarker(mo);
                                 coin coin = new coin(id, value, currency, lng,lat,false);
                                 coinsList.add(coin);
@@ -421,6 +422,15 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected static int getIcon(final String resName, final Context cxt){
+        final int ResourceID = cxt.getResources().getIdentifier(resName, "drawable", cxt.getApplicationContext().getPackageName());
+        if (ResourceID == 0){
+            throw new IllegalArgumentException();
+        }else{
+            return ResourceID;
+        }
     }
 
 

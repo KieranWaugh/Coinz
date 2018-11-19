@@ -1,6 +1,5 @@
 package com.kieranwaugh.coinz.coinz;
 
-import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.content.Context;
 
