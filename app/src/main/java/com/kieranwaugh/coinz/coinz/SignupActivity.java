@@ -106,7 +106,7 @@ public class SignupActivity extends AppCompatActivity {
                                     //Toast.makeText(SignupActivity.this, "Authentication failed." + task.getException(), Toast.LENGTH_SHORT).show();
                                     Snackbar.make(findViewById(R.id.viewSnack), "Problem signing you up." + task.getException(),Snackbar.LENGTH_LONG).show();
                                 } else {
-                                    String UID = FirebaseAuth.getInstance().getUid();
+                                    //String UID = FirebaseAuth.getInstance().getUid();
                                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                                     Gold gold = new Gold(0.0);
                                     //db.collection("users").document(email).collection(UID).add(gold);

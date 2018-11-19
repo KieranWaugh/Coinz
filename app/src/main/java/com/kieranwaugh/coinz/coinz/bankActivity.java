@@ -228,7 +228,6 @@ public class bankActivity extends AppCompatActivity {
 
     private View.OnClickListener bankClick = new View.OnClickListener(){
 
-        @SuppressLint("SetTextI18n")
         @Override
         public void onClick(View v) {
             if (bankedCount > 25){
@@ -247,12 +246,16 @@ public class bankActivity extends AppCompatActivity {
                     switch(c.getCurrency()){
                         case ("DOLR"):
                             popupIntent.putExtra("rate", DOLRrate);
+                            break;
                         case ("QUID"):
                             popupIntent.putExtra("rate", QUIDrate);
+                            break;
                         case ("SHIL"):
                             popupIntent.putExtra("rate", SHILLrate);
+                            break;
                         case ("PENY"):
                             popupIntent.putExtra("rate", PENYrate);
+                            break;
                     }
 
 
@@ -288,12 +291,16 @@ public class bankActivity extends AppCompatActivity {
                     switch(c.getCurrency()){
                         case ("DOLR"):
                             popupIntent.putExtra("rate", DOLRrate);
+                            break;
                         case ("QUID"):
                             popupIntent.putExtra("rate", QUIDrate);
+                            break;
                         case ("SHIL"):
                             popupIntent.putExtra("rate", SHILLrate);
+                            break;
                         case ("PENY"):
                             popupIntent.putExtra("rate", PENYrate);
+                            break;
                     }
 
 

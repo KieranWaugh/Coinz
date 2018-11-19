@@ -1,44 +1,25 @@
 package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActivityOptions;
+import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.PopupMenu;
-import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -47,13 +28,9 @@ import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.annotations.MarkerView;
-import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -62,51 +39,37 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
-import com.mapbox.mapboxsdk.style.layers.LineLayer;
-import com.mapbox.mapboxsdk.style.light.Position;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 @IgnoreExtraProperties
 public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
 
-        private String tag = "MapActivity";
-        private MapView mapView;
-        private MapboxMap map;
-        private PermissionsManager permissionsManager;
-        private LocationEngine locationEngine;
-        private LocationLayerPlugin locationLayerPlugin;
-        private Location originLocation;
-        public String mapData;
-        private FloatingActionButton collectButton;
-        private final String savedMapData = "mapData";
-        String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
-        String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        public List<coin> coinsList = new ArrayList<>();
-        public HashMap<String, Marker> markers= new HashMap<>();
-        public ArrayList<Marker> collectedMarkers = new ArrayList<>();
-        public ArrayList<String> collected = new ArrayList<>();
-        ArrayList<LatLng> locs= new ArrayList<LatLng>();
-        String UID = FirebaseAuth.getInstance().getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        private String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+    private String tag = "MapActivity";
+    private MapView mapView;
+    private MapboxMap map;
+    private LocationEngine locationEngine;
+    private Location originLocation;
+    public String mapData;
+    private FloatingActionButton collectButton;
+    private final String savedMapData = "mapData";
+    String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+    String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+    public List<coin> coinsList = new ArrayList<>();
+    public HashMap<String, Marker> markers= new HashMap<>();
+    public ArrayList<Marker> collectedMarkers = new ArrayList<>();
+    public ArrayList<String> collected = new ArrayList<>();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
 
 
 
@@ -116,38 +79,35 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             Mapbox.getInstance(this, getString(R.string.access_token));
             setContentView(R.layout.activity_map);
-            BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
             Menu menu = bottomNavigationView.getMenu();
             MenuItem menuItem = menu.getItem(1);
             menuItem.setChecked(true);
             ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
             ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
-            bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    switch (item.getItemId()){
-                        case R.id.navigation_stats:
-                            Intent intent1 = new Intent(mapActivity.this, statsActivity.class);
-                            startActivity(intent1,options2.toBundle());
-                            break;
+            bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+                switch (item.getItemId()){
+                    case R.id.navigation_stats:
+                        Intent intent1 = new Intent(mapActivity.this, statsActivity.class);
+                        startActivity(intent1,options2.toBundle());
+                        break;
 
-                        case R.id.navigation_map:
+                    case R.id.navigation_map:
 
-                            break;
+                        break;
 
-                        case R.id.navigation_bank:
-                            Intent intent3 = new Intent(mapActivity.this, bankActivity.class);
-                            startActivity(intent3, options1.toBundle());
-                            break;
-                    }
-                    return false;
+                    case R.id.navigation_bank:
+                        Intent intent3 = new Intent(mapActivity.this, bankActivity.class);
+                        startActivity(intent3, options1.toBundle());
+                        break;
                 }
+                return false;
             });
 
             mapView = findViewById(R.id.mapboxMapView);
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);
-            getCollected();
+            //getCollected();
         collectButton = findViewById(R.id.floatingActionButton2);
         collectButton.setVisibility(View.INVISIBLE);
         }
@@ -164,47 +124,67 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d(tag, "[onMapReady] problem finding map data, taking from server");
                 mapData = DownloadCompleteRunner.result;
             }
-
             if (mapboxMap == null) {
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
+
                 map = mapboxMap;
-                List<Feature> features = FeatureCollection.fromJson(mapData).features();
-                enableLocation();
-                for (int i = 0; i < features.size(); i++){
-                    try {
-                        JSONObject jsonObject = new JSONObject(features.get(i).toJson());
-                        JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
-                        double lng = Double.parseDouble(coordinates.get(0).toString());
-                        double lat = Double.parseDouble(coordinates.get(1).toString());
-                        String id = jsonObject.getJSONObject("properties").getString("id");
-                        double value = jsonObject.getJSONObject("properties").getDouble("value");
-                        String strValue = String.valueOf(value);
-                        String currency = jsonObject.getJSONObject("properties").getString("currency");
-                        int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
-                        String color = jsonObject.getJSONObject("properties").getString("marker-color");
 
+                FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+                CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
+                cr.get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
 
-                        //URL url = new URL("http://chart.googleapis.com/chart?chst=d_map_pin_letter&chld="+markerSymbol+"|"+color.substring(1, color.length())+"|000000&.png");
-                        //Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                        //BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(bmp);
-                        //Icon icon = new Icon();
+                        for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            coin c = document.toObject(coin.class);
+                            assert c != null;
+                            collected.add(c.getId());
 
-                        if (!collected.contains(id)){
-                            MarkerOptions mo = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue);
-                            Marker m = mapboxMap.addMarker(mo);
-                            coin coin = new coin(id, value, currency, lng,lat,false);
-                            coinsList.add(coin);
-                            markers.put(id, m);
-                        }else{
-                            continue;
                         }
-                        Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                }
+
+                    List<Feature> features = FeatureCollection.fromJson(mapData).features();
+                    enableLocation();
+                    assert features != null;
+                    for (int i = 0; i < features.size(); i++){
+                        try {
+
+                            JSONObject jsonObject = new JSONObject(features.get(i).toJson());
+                            JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
+                            double lng = Double.parseDouble(coordinates.get(0).toString());
+                            double lat = Double.parseDouble(coordinates.get(1).toString());
+                            String id = jsonObject.getJSONObject("properties").getString("id");
+                            double value = jsonObject.getJSONObject("properties").getDouble("value");
+                            String strValue = String.valueOf(value);
+                            String currency = jsonObject.getJSONObject("properties").getString("currency");
+                            //int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
+                            //String color = jsonObject.getJSONObject("properties").getString("marker-color");
+
+
+                            //URL url = new URL("http://chart.googleapis.com/chart?chst=d_map_pin_letter&chld="+markerSymbol+"|"+color.substring(1, color.length())+"|000000&.png");
+                            //Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                            //BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(bmp);
+                            //Icon icon = new Icon();
+
+                            if (!collected.contains(id)){
+                                MarkerOptions mo = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue);
+                                Marker m = mapboxMap.addMarker(mo);
+                                coin coin = new coin(id, value, currency, lng,lat,false);
+                                coinsList.add(coin);
+                                markers.put(id, m);
+                            }else{
+                                continue;
+                            }
+                            Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+
             }
+            Log.d(tag, "here 2");
         }
 
         private void enableLocation() {
@@ -214,7 +194,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 initializeLocationLayer();
             }else{
                 Log.d(tag, "Permissions are not granted");
-                permissionsManager = new PermissionsManager(this);
+                PermissionsManager permissionsManager = new PermissionsManager(this);
                 permissionsManager.requestLocationPermissions(this);
             }
         }
@@ -226,6 +206,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             locationEngine.setFastestInterval(1000); // at most every second
             locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
             locationEngine.activate();
+
 
             Location lastLocation = locationEngine.getLastLocation();
             if (lastLocation != null) {
@@ -244,10 +225,12 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if (map == null) {
                     Log.d(tag, "map is null");
                 }else{
-                    locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
+                    LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
                     locationLayerPlugin.setLocationLayerEnabled(true);
                     locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
                     locationLayerPlugin.setRenderMode(RenderMode.NORMAL);
+                    Lifecycle lifecycle = getLifecycle();
+                    lifecycle.addObserver(locationLayerPlugin);
                 }
             }
         }
@@ -275,30 +258,19 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         LatLng loc = m.getPosition();
                         if (collectOK(loc)){
                             collectButton.setVisibility(View.VISIBLE);
-                            collectButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    collectedMarkers.add(m);
-                                    map.removeMarker(m);
+                            collectButton.setOnClickListener(v -> {
+                                collectedMarkers.add(m);
+                                map.removeMarker(m);
 
-                                    db.collection("wallet").document(email).collection("collected ("+dateDB +")")
-                                            .add(coin)
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Log.d(tag, "coin collected with id " + coin.getId());
-                                                    collectButton.setVisibility(View.INVISIBLE);
-                                                    Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
+                                db.collection("wallet").document(email).collection("collected ("+dateDB +")")
+                                        .add(coin)
+                                        .addOnSuccessListener(documentReference -> {
+                                            Log.d(tag, "coin collected with id " + coin.getId());
+                                            collectButton.setVisibility(View.INVISIBLE);
+                                            Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
 
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(tag, "Error collecting coin", e);
-                                                }
-                                            });
-                                }
+                                        })
+                                        .addOnFailureListener(e -> Log.w(tag, "Error collecting coin", e));
                             });
 
                         }
@@ -353,7 +325,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (granted) {
                 enableLocation();
             }else{
-                // Open a dialogue with the user
+                Log.d(tag, "permissions not granted");
+                //add dialog here
             }
         }
 
@@ -361,6 +334,13 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         protected void onStart() {
             super.onStart();
             mapView.onStart();
+            if(locationEngine != null){
+
+                try {
+                    locationEngine.requestLocationUpdates();
+                } catch(SecurityException ignored) {}
+                locationEngine.addLocationEngineListener(this);
+            }
         }
 
         @Override
@@ -381,6 +361,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         protected void onStop(){
             super.onStop();
             mapView.onStop();
+            if(locationEngine != null){
+                locationEngine.removeLocationEngineListener(this);
+                locationEngine.removeLocationUpdates();
+            }
             SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
             if (FromFile.contains(date)){
                 Log.d(tag, "[onStop] mapData already saved");
@@ -439,23 +423,6 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    public void getCollected(){
-
-        db.collection("wallet").document(email).collection("collected ("+dateDB +")").addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-
-                if (e == null){
-                    for (DocumentChange documentChange : documentSnapshots.getDocumentChanges()) {
-                        String collectedID=  Objects.requireNonNull(documentChange.getDocument().getData().get("id")).toString();
-                        Log.d(tag, "[getCollected] "+ collectedID);
-                        collected.add(collectedID);
-
-                    }
-                }
-            }
-        });
-    }
 
     @Override
     public void onBackPressed(){

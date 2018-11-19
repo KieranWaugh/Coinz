@@ -6,15 +6,12 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -22,12 +19,9 @@ import java.util.Objects;
 
 public class BankWindow extends AppCompatActivity {
 
-    private TextView curView;
-    private TextView goldView;
     Button bankButton;
     String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-    String UID = FirebaseAuth.getInstance().getUid();
-    private String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+    private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -42,39 +36,34 @@ public class BankWindow extends AppCompatActivity {
 
         Intent intent = getIntent();
         coin c = (coin) intent.getSerializableExtra("coin");
-        double gold = (double) intent.getDoubleExtra("gold", 0.0);
-        String reference = (String) intent.getStringExtra("reference");
-        double rate = (double) intent.getDoubleExtra("rate", 0.0);
-        curView = findViewById(R.id.currencyConfirm);
+        double gold = intent.getDoubleExtra("gold", 0.0);
+        String reference = intent.getStringExtra("reference");
+        double rate = intent.getDoubleExtra("rate", 0.0);
+        TextView curView = findViewById(R.id.currencyConfirm);
         curView.setText(c.getCurrency() + ": " + c.getValue());
-        goldView = findViewById(R.id.goldConfirm);
+        TextView goldView = findViewById(R.id.goldConfirm);
         goldView.setText(c.getValue()*rate + " GOLD");
 
         bankButton = findViewById(R.id.bankButton);
-        bankButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("wallet").document(email).collection("collected (" + dateDB + ")").document(reference).update("banked", true);
+        bankButton.setOnClickListener(v -> {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("wallet").document(email).collection("collected (" + dateDB + ")").document(reference).update("banked", true);
 
-                String[] ref = new String[1];
-                CollectionReference cr = db.collection("bank").document(email).collection("gold");
-                cr.get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                            ref[0] = document.getId();
-                        }
+            String[] ref = new String[1];
+            CollectionReference cr = db.collection("bank").document(email).collection("gold");
+            cr.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                        ref[0] = document.getId();
                     }
-                    db.collection("bank").document(email).collection("gold").document(ref[0]).update("balance", gold +(c.getValue() * rate));
+                }
+                db.collection("bank").document(email).collection("gold").document(ref[0]).update("balance", gold +(c.getValue() * rate));
 
-                    Intent refresh = new Intent(BankWindow.this, bankActivity.class);
-                    ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.nothing);
-                    startActivity(refresh, options.toBundle());
+                Intent refresh = new Intent(BankWindow.this, bankActivity.class);
+                ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.nothing);
+                startActivity(refresh, options.toBundle());
 
-                });
-            }
-
-
+            });
         });
     }
 }
