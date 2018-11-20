@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -61,7 +62,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     private MapboxMap map;
     private LocationEngine locationEngine;
     private Location originLocation;
+    private Location previousLocation;
     public String mapData;
+    private double distanceWalked;
     private FloatingActionButton collectButton;
     private final String savedMapData = "mapData";
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
@@ -91,6 +94,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 switch (item.getItemId()){
                     case R.id.navigation_stats:
                         Intent intent1 = new Intent(mapActivity.this, statsActivity.class);
+                        intent1.putExtra("distance", distanceWalked);
                         startActivity(intent1,options2.toBundle());
                         break;
 
@@ -248,8 +252,22 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }else{
                 Log.d(tag, "[onLocationChanged] location is not null");
+                if (originLocation != null){
+                    if (previousLocation == null){
+                        previousLocation = originLocation;
+                    }
+                    Log.d(tag, "origin " + originLocation);
+                    Log.d(tag, "prev " + previousLocation);
+                    distanceWalked += distance(originLocation.getLatitude(), originLocation.getLongitude(), previousLocation.getLatitude(), previousLocation.getLongitude());
+                    previousLocation = originLocation;
+                    Log.d(tag, "distance " + distanceWalked);
+
+                }
                 originLocation = location;
+
                 setCameraPosition(location);
+
+
 
                 for (int i = 0; i < coinsList.size(); i++){
                     coin coin = coinsList.get(i);

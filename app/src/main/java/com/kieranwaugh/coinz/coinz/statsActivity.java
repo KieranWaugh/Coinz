@@ -12,10 +12,12 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
 public class statsActivity extends AppCompatActivity {
+    private TextView distance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,11 @@ public class statsActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        Intent intent = getIntent();
+        double dist = intent.getDoubleExtra("distance", 0.0);
+        distance = findViewById(R.id.distanceView);
+        distance.setText("distance walked: " + dist);
     }
 
     @Override

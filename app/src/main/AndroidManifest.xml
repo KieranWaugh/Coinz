@@ -49,6 +49,7 @@
             android:name=".TransferWindow"
             android:theme="@style/AppTheme.PopupOverlay"/>
 
+
     </application>
 
 </manifest>

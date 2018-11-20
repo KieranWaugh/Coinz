@@ -198,6 +198,7 @@ public class bankActivity extends AppCompatActivity {
     }
 
     public void getCollected(){
+
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
         CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
        cr.get().addOnCompleteListener(task -> {
