@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.location.LocationManager;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -93,7 +92,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
                 switch (item.getItemId()){
                     case R.id.navigation_stats:
-                        Intent intent1 = new Intent(mapActivity.this, statsActivity.class);
+                        Intent intent1 = new Intent(mapActivity.this, Test_Player_Activity.class);
                         intent1.putExtra("distance", distanceWalked);
                         startActivity(intent1,options2.toBundle());
                         break;

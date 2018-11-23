@@ -18,7 +18,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:src="@mipmap/ic_sic_coin"
+        android:src="@mipmap/coin"
         android:transitionName="transition"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
