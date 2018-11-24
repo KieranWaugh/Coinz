@@ -93,7 +93,7 @@ public class bankActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){
                 case R.id.navigation_stats:
-                    Intent intent1 = new Intent(bankActivity.this, statsActivity.class);
+                    Intent intent1 = new Intent(bankActivity.this, Test_Player_Activity.class);
                     startActivity(intent1, options2.toBundle());
                     break;
 

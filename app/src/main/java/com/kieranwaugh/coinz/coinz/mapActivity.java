@@ -72,15 +72,18 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     public HashMap<String, Marker> markers= new HashMap<>();
     public ArrayList<Marker> collectedMarkers = new ArrayList<>();
     public ArrayList<String> collected = new ArrayList<>();
+    public ArrayList<coin> collectedCoins = new ArrayList<>();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
+    private String statsREF;
+    private PlayerStats stats;
 
 
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-
+            getStats();
             Mapbox.getInstance(this, getString(R.string.access_token));
             setContentView(R.layout.activity_map);
             BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
@@ -93,7 +96,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 switch (item.getItemId()){
                     case R.id.navigation_stats:
                         Intent intent1 = new Intent(mapActivity.this, Test_Player_Activity.class);
-                        intent1.putExtra("distance", distanceWalked);
+                        intent1.putExtra("stats", stats);
                         startActivity(intent1,options2.toBundle());
                         break;
 
@@ -144,6 +147,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                             coin c = document.toObject(coin.class);
                             assert c != null;
                             collected.add(c.getId());
+                            collectedCoins.add(c);
 
                         }
                     }
@@ -364,9 +368,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         @Override
         protected void onResume(){
             super.onResume();
-            Log.d(tag, "[onResume] on resume test before");
             mapView.onResume();
-            Log.d(tag, "[onResume] on resume test after");
         }
 
         @Override
@@ -377,6 +379,40 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         protected void onStop(){
+            Log.d(tag, "onStop" + collectedCoins.size());
+            double alreadyWalked = stats.getDistance();
+            Log.d(tag, "[onStop] " + distanceWalked);
+            Log.d(tag, "[onStop] " + statsREF);
+            int collectedDOLRS = 0;
+            int collectedQUIDS = 0;
+            int collectedPENYS = 0;
+            int collectedSHILS = 0;
+            for (int i = 0; i < collectedCoins.size(); i++){
+                coin c = collectedCoins.get(i);
+                switch (c.getCurrency()){
+                    case "DOLR":
+                        collectedDOLRS +=1;
+                        break;
+                    case "QUID":
+                        collectedQUIDS +=1;
+                        break;
+                    case "PENY"  :
+                        collectedPENYS +=1;
+                        break;
+                    case "SHIL":
+                        collectedSHILS +=1;
+                        break;
+                }
+            }
+
+            double newDistance = alreadyWalked += distanceWalked;
+            FirebaseFirestore inst = FirebaseFirestore.getInstance();
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("distance", newDistance);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("dolrs", collectedDOLRS);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("quids", collectedQUIDS);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("shils", collectedSHILS);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("penys", collectedPENYS);
+
             super.onStop();
             mapView.onStop();
             if(locationEngine != null){
@@ -406,6 +442,35 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         protected void  onDestroy(){
+            int collectedDOLRS = 0;
+            int collectedQUIDS = 0;
+            int collectedPENYS = 0;
+            int collectedSHILS = 0;
+            for (int i = 0; i < collectedCoins.size(); i++){
+                coin c = collectedCoins.get(i);
+                switch (c.getCurrency()){
+                    case "DOLR":
+                        collectedDOLRS +=1;
+                        break;
+                    case "QUID":
+                        collectedQUIDS +=1;
+                        break;
+                    case "PENY"  :
+                        collectedPENYS +=1;
+                        break;
+                    case "SHIL":
+                        collectedSHILS +=1;
+                        break;
+                }
+            }
+            double alreadyWalked = stats.getDistance();
+            double newDistance = alreadyWalked += distanceWalked;
+            FirebaseFirestore inst = FirebaseFirestore.getInstance();
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("distance", newDistance);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("dolrs", collectedDOLRS);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("quids", collectedQUIDS);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("shils", collectedSHILS);
+            inst.collection("user").document(email).collection("STATS").document(statsREF).update("penys", collectedPENYS);
             super.onDestroy();
             mapView.onDestroy();
         }
@@ -448,6 +513,22 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }else{
             return ResourceID;
         }
+    }
+
+    public void getStats(){
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+        CollectionReference cr = rootRef.collection("user").document(email).collection("STATS");
+        cr.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+
+                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                    statsREF = (document.getId());
+                    stats = document.toObject(PlayerStats.class);
+                }
+            }
+            assert stats != null;
+            Log.d(tag, "[getStats] " + stats.getDistance());
+        });
     }
 
 

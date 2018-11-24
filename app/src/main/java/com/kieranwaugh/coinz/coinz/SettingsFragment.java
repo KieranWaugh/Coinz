@@ -9,7 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class SettingsFragment extends Fragment {
+
+public class SettingsFragment extends android.support.v4.app.Fragment {
     // Store instance variables
     private String title;
     private int page;

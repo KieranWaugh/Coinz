@@ -7,20 +7,20 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends android.support.v4.app.Fragment {
     // Store instance variables
-    private String title;
-    private int page;
+    private ListView listView;
 
     // newInstance constructor for creating fragment with arguments
-    public static FriendsFragment newInstance(int page, String title) {
+    public static FriendsFragment newInstance( ) {
         FriendsFragment fragmentFirst = new FriendsFragment();
         Bundle args = new Bundle();
-        args.putInt("someInt", page);
-        args.putString("someTitle", title);
+
+
         fragmentFirst.setArguments(args);
         return fragmentFirst;
     }
@@ -29,8 +29,8 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        page = getArguments().getInt("someInt", 0);
-        title = getArguments().getString("someTitle");
+        //https://www.mkyong.com/android/android-listview-example/
+
     }
 
     // Inflate the view for the fragment based on layout XML
@@ -38,8 +38,6 @@ public class FriendsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
-        TextView tvLabel = (TextView) view.findViewById(R.id.test1);
-        tvLabel.setText(page + " -- " + title);
         return view;
     }
 }

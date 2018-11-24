@@ -50,7 +50,10 @@
             android:theme="@style/AppTheme.PopupOverlay" />
         <activity
             android:name=".Test_Player_Activity"
-            android:label="@string/title_activity_test__player_"></activity>
+            android:label="@string/title_activity_test__player_"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
+
     </application>
 
 </manifest>

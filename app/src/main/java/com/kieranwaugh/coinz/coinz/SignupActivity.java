@@ -97,11 +97,13 @@ public class SignupActivity extends AppCompatActivity {
 
                 if(TextUtils.isEmpty(name)){
                     Snackbar.make(findViewById(R.id.viewSnack), "Enter Name!",Snackbar.LENGTH_LONG).show();
+                    return;
 
                 }
 
                 if (!password.equals(reEnter)){
                     Snackbar.make(findViewById(R.id.viewSnack), "Passwords do not match!",Snackbar.LENGTH_LONG).show();
+                    return;
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
@@ -126,6 +128,8 @@ public class SignupActivity extends AppCompatActivity {
                                     db.collection("bank").document(email).collection("gold").add(gold);
                                     User u = new User(email, name, "");
                                     db.collection("user").document(email).collection("INFO").add(u);
+                                    PlayerStats ps = new PlayerStats(0, 0, 0, 0, 0);
+                                    db.collection("user").document(email).collection("STATS").add(ps);
                                     ActivityOptions options = ActivityOptions.makeCustomAnimation(SignupActivity.this, R.anim.nothing, R.anim.bottom_up);
                                     startActivity(new Intent(SignupActivity.this, mapActivity.class), options.toBundle());
                                     finish();
