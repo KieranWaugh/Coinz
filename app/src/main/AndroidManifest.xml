@@ -11,7 +11,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/coin"
+        android:roundIcon="@mipmap/coin_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
@@ -25,13 +25,15 @@
         </activity>
         <activity
             android:name=".mapActivity"
-            android:label="Map" />
+            android:label="Map"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".statsActivity"
             android:label="Statistics" />
         <activity
             android:name=".bankActivity"
-            android:label="Bank" />
+            android:label="Bank"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
@@ -51,9 +53,10 @@
         <activity
             android:name=".Test_Player_Activity"
             android:label="@string/title_activity_test__player_"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
-
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".pic_choice"
+            android:theme="@style/AppTheme.PopupOverlay"/>
     </application>
 
 </manifest>

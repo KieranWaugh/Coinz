@@ -130,7 +130,7 @@ public class SignupActivity extends AppCompatActivity {
                                     db.collection("user").document(email).collection("INFO").add(u);
                                     PlayerStats ps = new PlayerStats(0, 0, 0, 0, 0);
                                     db.collection("user").document(email).collection("STATS").add(ps);
-                                    db.collection("user").document(email).collection("Friends").add(u);
+                                    //db.collection("user").document(email).collection("Friends").add(u);
                                     ActivityOptions options = ActivityOptions.makeCustomAnimation(SignupActivity.this, R.anim.nothing, R.anim.bottom_up);
                                     startActivity(new Intent(SignupActivity.this, mapActivity.class), options.toBundle());
                                     finish();

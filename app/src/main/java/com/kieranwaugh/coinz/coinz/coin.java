@@ -13,6 +13,9 @@ public class coin implements Serializable {
     public String id;
     public double value;
     public String currency;
+
+
+
     public double lng;
     public double lat;
     private boolean banked;
@@ -57,6 +60,10 @@ public class coin implements Serializable {
 
     public boolean isBanked() {
         return banked;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 //    public Marker getMarker() {

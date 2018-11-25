@@ -16,7 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,7 +40,6 @@ public class Test_Player_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getData();
-        //getStats();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test__player);
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
@@ -74,6 +75,60 @@ public class Test_Player_Activity extends AppCompatActivity {
                 return false;
             }
         });
+
+        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+        CollectionReference cr = rootRef.collection("user").document(email).collection("INFO");
+        cr.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+
+                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                    int id = Integer.parseInt(document.get("iconID").toString());
+                    Log.d("test", "id is " + id);
+                    switch (id) {
+                        case 2:
+                            profilePic.setImageResource(R.mipmap.icon_2_round);
+                            break;
+                        case 3:
+                            profilePic.setImageResource(R.mipmap.icon_3_round);
+                            break;
+                        case 4:
+                            profilePic.setImageResource(R.mipmap.icon_4_round);
+                            break;
+                        case 5:
+                            profilePic.setImageResource(R.mipmap.icon_5_round);
+                            break;
+                    }
+
+                }
+                //profilePics.remove(1);
+
+            }
+        });
+
+        profilePic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(Test_Player_Activity.this, profilePic);
+                popup.getMenuInflater().inflate(R.menu.profile_pic_click, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        String sp = item.getTitle().toString();
+                        switch(sp){
+                            case "Sign Out":
+                                FirebaseAuth.getInstance().signOut();
+                                startActivity(new Intent(Test_Player_Activity.this, MainActivity.class));
+                                finish();
+                                break;
+                            case  "Change Profile Picture":
+                                startActivity(new Intent(Test_Player_Activity.this, pic_choice.class));
+                        }
+                        return true;
+                    }
+                });
+                popup.show();
+            }
+        });
+
     }
 
     public void getData(){
@@ -131,7 +186,7 @@ public class Test_Player_Activity extends AppCompatActivity {
 
 
     public static class MyPagerAdapter extends FragmentPagerAdapter {
-        private static int NUM_ITEMS = 3;
+        private static int NUM_ITEMS = 2;
 
         public MyPagerAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
@@ -151,8 +206,6 @@ public class Test_Player_Activity extends AppCompatActivity {
                     return FriendsFragment.newInstance();
                 case 1: // Fragment # 0 - This will show FirstFragment different title
                     return StatsFragment.newInstance();
-                case 2: // Fragment # 1 - This will show SecondFragment
-                    return SettingsFragment.newInstance(2, "Page # 3");
                 default:
                     return null;
             }
@@ -166,8 +219,6 @@ public class Test_Player_Activity extends AppCompatActivity {
                     return "Friends";
                 case 1:
                     return "Statistics";
-                case 2:
-                    return  "Settings";
             }
             return "Page " + position;
         }
@@ -175,6 +226,7 @@ public class Test_Player_Activity extends AppCompatActivity {
 
 
     }
+
 }
 
 

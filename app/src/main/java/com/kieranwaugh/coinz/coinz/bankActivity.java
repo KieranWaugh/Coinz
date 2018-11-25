@@ -275,43 +275,45 @@ public class bankActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            if (bankedCount > 25){
-                if (selectedCoin !=51){
-                    Snackbar.make(findViewById(R.id.viewSnack), "You have already banked 25 coins today!", Snackbar.LENGTH_LONG).show();
-                }
-
-            }else{
                 if (selectedCoin != 51){
                     List<String> docRefs = new ArrayList<>(collectedMap.keySet());
                     String reference = docRefs.get(selectedCoin);
 
                     coin c = collectedMap.get(reference);
-                    Intent popupIntent = new Intent(bankActivity.this, TransferWindow.class);
-                    assert c != null;
-                    switch(c.getCurrency()){
-                        case ("DOLR"):
-                            popupIntent.putExtra("rate", DOLRrate);
-                            break;
-                        case ("QUID"):
-                            popupIntent.putExtra("rate", QUIDrate);
-                            break;
-                        case ("SHIL"):
-                            popupIntent.putExtra("rate", SHILLrate);
-                            break;
-                        case ("PENY"):
-                            popupIntent.putExtra("rate", PENYrate);
-                            break;
+                    Log.d(tag, c.getId().substring(29, c.getId().length()));
+                    if(c.getId().substring(29, c.getId().length()).equals("SENT")){
+                        Snackbar.make(findViewById(R.id.viewSnack), "This coin was transferred to you.",Snackbar.LENGTH_SHORT).show();
+
+                    }else{
+                        Intent popupIntent = new Intent(bankActivity.this, TransferWindow.class);
+                        assert c != null;
+                        switch(c.getCurrency()){
+                            case ("DOLR"):
+                                popupIntent.putExtra("rate", DOLRrate);
+                                break;
+                            case ("QUID"):
+                                popupIntent.putExtra("rate", QUIDrate);
+                                break;
+                            case ("SHIL"):
+                                popupIntent.putExtra("rate", SHILLrate);
+                                break;
+                            case ("PENY"):
+                                popupIntent.putExtra("rate", PENYrate);
+                                break;
+                        }
+
+
+                        popupIntent.putExtra("coin", c);
+                        popupIntent.putExtra("gold", goldBal);
+                        popupIntent.putExtra("reference", reference);
+                        startActivity(popupIntent);
                     }
 
 
-                    popupIntent.putExtra("coin", c);
-                    popupIntent.putExtra("gold", goldBal);
-                    popupIntent.putExtra("reference", reference);
-                    startActivity(popupIntent);
 
                 }
             }
-        }
+
     };
 
 

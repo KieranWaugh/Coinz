@@ -60,11 +60,11 @@ public class MainActivity extends AppCompatActivity {
         final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.bounce);
         Log.d(tag, "[onCreate] The date is " + date + " fetching map");
         SharedPreferences FromFile = getSharedPreferences("mapData", Context.MODE_PRIVATE);
-        if (FromFile.contains(date)){
+        if (FromFile.contains(date)) {
             Log.d(tag, "[onCreate] Taking map data from file, moving on");
-        }else {
+        } else {
             DownloadFileTask df = new DownloadFileTask();
-            df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/"+date+"/coinzmap.geojson");
+            df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson");
             Log.d(tag, "[onCreate] Taking map data from server");
         }
 
@@ -93,29 +93,44 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
+        View view2 = findViewById(R.id.contentSpace);
+        view2.setOnTouchListener(new View.OnTouchListener() {
 
-        final Button playButton = (Button) findViewById(R.id.PlayButton);
-        playButton.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v){
+            public boolean onTouch(View view, MotionEvent event) {
 
                 if (auth.getCurrentUser() != null) {
 
-                    setProgressDialog();
+                    if (auth.getCurrentUser() != null) {
 
-                    ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.bottom_up, R.anim.nothing);
-                    startActivity(new Intent(MainActivity.this, mapActivity.class), options.toBundle());
+                        setProgressDialog();
 
-                }else{
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, findViewById(R.id.imageView), "transition");
-                    startActivity(intent, options.toBundle());
+
+                        ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.bottom_up, R.anim.nothing);
+                        startActivity(new Intent(MainActivity.this, mapActivity.class), options.toBundle());
+                        return true;
+
+                    } else {
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
+                        startActivity(intent, options.toBundle());
+                        return false;
+                    }
+
+
+
                 }
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
+                startActivity(intent, options.toBundle());
+                return false;
             }
         });
-
-
     }
+
+
+
+
 
     @Override
     public void onStart() {

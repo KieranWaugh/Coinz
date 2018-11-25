@@ -172,7 +172,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                             if (!collected.contains(id)){
                                 Context cxt = getApplicationContext();
-                                int iconInt = getIcon("marker_"+color.substring(1, color.length())+"_"+ markerSymbol, cxt);
+                                int iconInt = getIcon("coin", cxt);
                                 IconFactory iconFactory = IconFactory.getInstance(this);
                                 Icon icon =  iconFactory.fromResource(iconInt);
                                 MarkerOptions mo = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon);
@@ -376,56 +376,61 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         protected void onStop(){
-            Log.d(tag, "onStop" + collectedCoins.size());
-            double alreadyWalked = stats.getDistance();
-            Log.d(tag, "[onStop] " + distanceWalked);
-            Log.d(tag, "[onStop] " + statsREF);
-            int collectedDOLRS = 0;
-            int collectedQUIDS = 0;
-            int collectedPENYS = 0;
-            int collectedSHILS = 0;
-            for (int i = 0; i < collectedCoins.size(); i++){
-                coin c = collectedCoins.get(i);
-                switch (c.getCurrency()){
-                    case "DOLR":
-                        collectedDOLRS +=1;
-                        break;
-                    case "QUID":
-                        collectedQUIDS +=1;
-                        break;
-                    case "PENY"  :
-                        collectedPENYS +=1;
-                        break;
-                    case "SHIL":
-                        collectedSHILS +=1;
-                        break;
+            super.onStop();
+            mapView.onStop();
+            if (collectedCoins.size()!=0){
+                Log.d(tag, "onStop" + collectedCoins.size());
+                double alreadyWalked = stats.getDistance();
+                Log.d(tag, "[onStop] " + distanceWalked);
+                Log.d(tag, "[onStop] " + statsREF);
+                int collectedDOLRS = 0;
+                int collectedQUIDS = 0;
+                int collectedPENYS = 0;
+                int collectedSHILS = 0;
+                for (int i = 0; i < collectedCoins.size(); i++){
+                    coin c = collectedCoins.get(i);
+                    assert c!=null;
+                    switch (c.getCurrency()){
+                        case "DOLR":
+                            collectedDOLRS +=1;
+                            break;
+                        case "QUID":
+                            collectedQUIDS +=1;
+                            break;
+                        case "PENY"  :
+                            collectedPENYS +=1;
+                            break;
+                        case "SHIL":
+                            collectedSHILS +=1;
+                            break;
+                    }
+                }
+
+                double newDistance = alreadyWalked += distanceWalked;
+                FirebaseFirestore inst = FirebaseFirestore.getInstance();
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("distance", newDistance);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("dolrs", collectedDOLRS);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("quids", collectedQUIDS);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("shils", collectedSHILS);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("penys", collectedPENYS);
+
+
+                if(locationEngine != null){
+                    locationEngine.removeLocationEngineListener(this);
+                    locationEngine.removeLocationUpdates();
+                }
+                SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
+                if (FromFile.contains(date)){
+                    Log.d(tag, "[onStop] mapData already saved");
+                }else{
+                    Log.d(tag, "[onStop] New map, Saving mapData");
+                    SharedPreferences settings = getSharedPreferences("mapData", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString(date,mapData);
+                    editor.apply();
                 }
             }
 
-            double newDistance = alreadyWalked += distanceWalked;
-            FirebaseFirestore inst = FirebaseFirestore.getInstance();
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("distance", newDistance);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("dolrs", collectedDOLRS);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("quids", collectedQUIDS);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("shils", collectedSHILS);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("penys", collectedPENYS);
-
-            super.onStop();
-            mapView.onStop();
-            if(locationEngine != null){
-                locationEngine.removeLocationEngineListener(this);
-                locationEngine.removeLocationUpdates();
-            }
-            SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
-            if (FromFile.contains(date)){
-                Log.d(tag, "[onStop] mapData already saved");
-            }else{
-                Log.d(tag, "[onStop] New map, Saving mapData");
-                SharedPreferences settings = getSharedPreferences("mapData", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString(date,mapData);
-                editor.apply();
-            }
 
         }
 
@@ -439,37 +444,60 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         protected void  onDestroy(){
-            int collectedDOLRS = 0;
-            int collectedQUIDS = 0;
-            int collectedPENYS = 0;
-            int collectedSHILS = 0;
-            for (int i = 0; i < collectedCoins.size(); i++){
-                coin c = collectedCoins.get(i);
-                switch (c.getCurrency()){
-                    case "DOLR":
-                        collectedDOLRS +=1;
-                        break;
-                    case "QUID":
-                        collectedQUIDS +=1;
-                        break;
-                    case "PENY"  :
-                        collectedPENYS +=1;
-                        break;
-                    case "SHIL":
-                        collectedSHILS +=1;
-                        break;
-                }
-            }
-            double alreadyWalked = stats.getDistance();
-            double newDistance = alreadyWalked += distanceWalked;
-            FirebaseFirestore inst = FirebaseFirestore.getInstance();
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("distance", newDistance);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("dolrs", collectedDOLRS);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("quids", collectedQUIDS);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("shils", collectedSHILS);
-            inst.collection("user").document(email).collection("STATS").document(statsREF).update("penys", collectedPENYS);
             super.onDestroy();
             mapView.onDestroy();
+            if (collectedCoins.size()!=0){
+                Log.d(tag, "onStop" + collectedCoins.size());
+                double alreadyWalked = stats.getDistance();
+                Log.d(tag, "[onStop] " + distanceWalked);
+                Log.d(tag, "[onStop] " + statsREF);
+                int collectedDOLRS = 0;
+                int collectedQUIDS = 0;
+                int collectedPENYS = 0;
+                int collectedSHILS = 0;
+                for (int i = 0; i < collectedCoins.size(); i++){
+                    coin c = collectedCoins.get(i);
+                    switch (c.getCurrency()){
+                        case "DOLR":
+                            collectedDOLRS +=1;
+                            break;
+                        case "QUID":
+                            collectedQUIDS +=1;
+                            break;
+                        case "PENY"  :
+                            collectedPENYS +=1;
+                            break;
+                        case "SHIL":
+                            collectedSHILS +=1;
+                            break;
+                    }
+                }
+
+                double newDistance = alreadyWalked += distanceWalked;
+                FirebaseFirestore inst = FirebaseFirestore.getInstance();
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("distance", newDistance);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("dolrs", collectedDOLRS);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("quids", collectedQUIDS);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("shils", collectedSHILS);
+                inst.collection("user").document(email).collection("STATS").document(statsREF).update("penys", collectedPENYS);
+
+
+                if(locationEngine != null){
+                    locationEngine.removeLocationEngineListener(this);
+                    locationEngine.removeLocationUpdates();
+                }
+                SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
+                if (FromFile.contains(date)){
+                    Log.d(tag, "[onStop] mapData already saved");
+                }else{
+                    Log.d(tag, "[onStop] New map, Saving mapData");
+                    SharedPreferences settings = getSharedPreferences("mapData", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString(date,mapData);
+                    editor.apply();
+                }
+            }
+
         }
 
         @Override
