@@ -189,10 +189,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         }
                     }
                 });
-
-
             }
-            Log.d(tag, "here 2");
         }
 
         private void enableLocation() {
