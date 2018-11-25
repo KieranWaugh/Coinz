@@ -126,7 +126,7 @@ public class SignupActivity extends AppCompatActivity {
                                     Gold gold = new Gold(0.0);
                                     //db.collection("users").document(email).collection(UID).add(gold);
                                     db.collection("bank").document(email).collection("gold").add(gold);
-                                    User u = new User(email, name, "");
+                                    User u = new User(email, name, 1);
                                     db.collection("user").document(email).collection("INFO").add(u);
                                     PlayerStats ps = new PlayerStats(0, 0, 0, 0, 0);
                                     db.collection("user").document(email).collection("STATS").add(ps);

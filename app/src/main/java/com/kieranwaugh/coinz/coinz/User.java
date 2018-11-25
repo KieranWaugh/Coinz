@@ -4,16 +4,13 @@ public class User {
 
     private String email;
     private String name;
-
-
-
-    private String iconID;
+    private int iconID;
 
     public User(){
 
     }
 
-    public User(String email, String name, String iconID){
+    public User(String email, String name, int iconID){
         this.email = email;
         this.name = name;
         this.iconID = iconID;
@@ -27,7 +24,7 @@ public class User {
         return name;
     }
 
-    public String getIconID() {
+    public int getIconID() {
         return iconID;
     }
 
