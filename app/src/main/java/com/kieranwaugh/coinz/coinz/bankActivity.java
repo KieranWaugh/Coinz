@@ -74,7 +74,7 @@ public class bankActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_bank);
+        setContentView(R.layout.test_bank_activity);
         Button bankButton =findViewById(R.id.bankButton);
         bankButton.setOnClickListener(bankClick);
         Button transferButton = findViewById(R.id.transferButton);
@@ -88,18 +88,18 @@ public class bankActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(2);
         menuItem.setChecked(true);
-        //ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
+        ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
         ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){
                 case R.id.navigation_stats:
                     Intent intent1 = new Intent(bankActivity.this, Test_Player_Activity.class);
-                    startActivity(intent1, options2.toBundle());
+                    startActivity(intent1,options2.toBundle());
                     break;
 
                 case R.id.navigation_map:
-                    Intent intent2 = new Intent(bankActivity.this, mapActivity.class);
-                    startActivity(intent2, options2.toBundle());
+                    Intent intent3 = new Intent(bankActivity.this, mapActivity.class);
+                    startActivity(intent3, options1.toBundle());
                     break;
 
                 case R.id.navigation_bank:
@@ -280,13 +280,13 @@ public class bankActivity extends AppCompatActivity {
                     String reference = docRefs.get(selectedCoin);
 
                     coin c = collectedMap.get(reference);
+                    assert c != null;
                     Log.d(tag, c.getId().substring(29, c.getId().length()));
                     if(c.getId().substring(29, c.getId().length()).equals("SENT")){
                         Snackbar.make(findViewById(R.id.viewSnack), "This coin was transferred to you.",Snackbar.LENGTH_SHORT).show();
 
                     }else{
                         Intent popupIntent = new Intent(bankActivity.this, TransferWindow.class);
-                        assert c != null;
                         switch(c.getCurrency()){
                             case ("DOLR"):
                                 popupIntent.putExtra("rate", DOLRrate);

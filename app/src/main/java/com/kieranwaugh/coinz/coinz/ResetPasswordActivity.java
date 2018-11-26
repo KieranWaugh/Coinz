@@ -2,6 +2,7 @@ package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -12,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,6 +26,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
     private Button btnReset, btnBack;
     private FirebaseAuth auth;
     private ProgressBar progressBar;
+    private TextView forgot, email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +36,16 @@ public class ResetPasswordActivity extends AppCompatActivity {
         inputEmail = (EditText) findViewById(R.id.email);
         btnReset = (Button) findViewById(R.id.btn_reset_password);
         btnBack = (Button) findViewById(R.id.btn_back);
+        forgot = findViewById(R.id.fogotPasswordtext);
+        email = findViewById(R.id.enterEmailtext);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/game_font.ttf");
+        btnReset.setTypeface(typeface);
+        btnBack.setTypeface(typeface);
+        forgot.setTypeface(typeface);
+        email.setTypeface(typeface);
+
 
         auth = FirebaseAuth.getInstance();
 

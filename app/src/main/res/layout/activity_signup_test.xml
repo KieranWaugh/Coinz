@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
+    android:background="@color/colorPrimary"
     >
 
     <ImageView
@@ -17,7 +18,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:src="@mipmap/coin"
+        android:src="@drawable/map_coin"
         android:transitionName="transition"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -50,7 +51,8 @@
             android:inputType="text"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@color/black" />
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -78,7 +80,8 @@
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@color/black" />
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -107,7 +110,8 @@
             android:inputType="textPassword"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@color/black" />
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -136,7 +140,8 @@
             android:inputType="textPassword"
             android:maxLines="1"
             android:singleLine="true"
-            android:textColor="@color/black" />
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -149,33 +154,16 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="@drawable/ripple"
+        android:background="@drawable/ripple_dark"
         android:text="@string/action_sign_in_short"
-        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        android:textColor="@color/colorPrimary"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.84000003" />
-
-    <Button
-        android:id="@+id/btn_reset_password"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@null"
-        android:text="@string/btn_forgot_password"
-        android:textAllCaps="false"
-        android:textColor="@color/blue"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
 
     <!-- Link to Login Screen -->
 
@@ -190,7 +178,7 @@
         android:background="@null"
         android:text="@string/btn_link_to_login"
         android:textAllCaps="false"
-        android:textColor="@color/blue"
+        android:textColor="@color/white"
         android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -203,15 +191,15 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center|bottom"
+        android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textInputLayout3"
         app:layout_constraintStart_toStartOf="@+id/textInputLayout3"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.92" />
+        app:layout_constraintVertical_bias="0.98" />
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/viewSnack"

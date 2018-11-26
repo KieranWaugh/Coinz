@@ -35,9 +35,9 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundLayerName" value="ic_launcher_background" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Documents/coinIcon.png" />
-                                      <entry key="foregroundLayerName" value="icon_coin" />
-                                      <entry key="outputName" value="coin_icon" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/Documents/coinz.png" />
+                                      <entry key="foregroundLayerName" value="icon_coinz" />
+                                      <entry key="outputName" value="coinz" />
                                     </map>
                                   </option>
                                 </PersistentState>

@@ -2,6 +2,7 @@ package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -44,14 +45,10 @@ public class SignupActivity extends AppCompatActivity {
         btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
         inputName = findViewById(R.id.name);
 
-        btnResetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SignupActivity.this, ResetPasswordActivity.class);
-                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(SignupActivity.this, findViewById(R.id.imageView), "transition");
-                startActivity(intent, options.toBundle());
-            }
-        });
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/game_font.ttf");
+        btnSignIn.setTypeface(typeface);
+        btnSignUp.setTypeface(typeface);
+
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -7,19 +7,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -48,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
     private FirebaseAuth auth;
     private String UID = FirebaseAuth.getInstance().getUid();
+    private ImageView coin;
+    private TextView tap;
 
 
 
@@ -70,34 +77,43 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        View view = findViewById(R.id.contentSpace);
-//        ArrayList<String> goldRefs = new ArrayList<>();
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        CollectionReference cr = db.collection("bank");
-//        cr.get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-//                    Log.d(tag, "in loop");
-//                    String ref = (document.getId());
-//                    Log.d(tag, ref);
-//                    goldRefs.add(ref);
-//                }
-//            }
-//            Log.d(tag, goldRefs.toString());
-//            if (!goldRefs.contains(UID)){
-//                Log.d(tag,"[onCreate] User does Not Exist");
-//                Gold gold = new Gold(0.0);
-//                db.collection("bank").document(UID).collection("gold").add(gold);
-//            }else{
-//                Log.d(tag,"[onCreate] User does Not Exist");
-//            }
-//        });
+        tap =findViewById(R.id.tapBegin);
+        tap.setVisibility(View.INVISIBLE);
+        tap.setRotation(-30);
 
-        View view2 = findViewById(R.id.contentSpace);
-        view2.setOnTouchListener(new View.OnTouchListener() {
+        tap.postDelayed(() -> {
+            tap.setVisibility(View.VISIBLE);
+            Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/game_font.ttf");
+            tap.setTypeface(typeface);
+
+            Animation anim = new AlphaAnimation(0.0f, 1.0f);
+            anim.setDuration(500); //You can manage the blinking time with this parameter
+            anim.setStartOffset(100);
+            anim.setRepeatMode(Animation.REVERSE);
+            anim.setRepeatCount(Animation.INFINITE);
+            tap.startAnimation(anim);
+        }, 1500);
+
+
+        coin = findViewById(R.id.coinLogo);
+        Display display = getWindowManager().getDefaultDisplay();
+        float width = display.getWidth();
+        TranslateAnimation animation = new TranslateAnimation(width - 50, 0, 0, 0); // new TranslateAnimation(xFrom,xTo, yFrom,yTo)
+        animation.setDuration(700); // animation duration
+        // left )
+        animation.setFillAfter(true);
+
+        coin.startAnimation(animation); // start animation
+
+
+
+
+        View view = findViewById(R.id.contentSpace);
+        view.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View view, MotionEvent event) {
+                tap.setVisibility(View.INVISIBLE);
 
                 if (auth.getCurrentUser() != null) {
 
