@@ -56,7 +56,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".pic_choice"
+            android:theme="@style/AppTheme.PopupOverlay" />
+        <activity android:name=".ShopActivity"
             android:theme="@style/AppTheme.PopupOverlay"/>
+
     </application>
 
 </manifest>

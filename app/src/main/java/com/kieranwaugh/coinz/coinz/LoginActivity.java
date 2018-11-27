@@ -91,6 +91,9 @@ public class LoginActivity extends AppCompatActivity {
             final String password = inputPassword.getText().toString();
 
             if (TextUtils.isEmpty(email)) {
+                Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                assert v1 != null;
+                v1.vibrate(500);
 
                 inputEmail.getBackground().mutate().setColorFilter(getResources().getColor(android.R.color.holo_red_light), PorterDuff.Mode.SRC_ATOP);
                 Snackbar.make(findViewById(R.id.viewSnack), "Enter email address!",Snackbar.LENGTH_LONG).show();
@@ -98,6 +101,9 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             if (TextUtils.isEmpty(password)) {
+                Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                assert v1 != null;
+                v1.vibrate(500);
 
                 inputPassword.getBackground().mutate().setColorFilter(getResources().getColor(android.R.color.holo_red_light), PorterDuff.Mode.SRC_ATOP);
                 Snackbar.make(findViewById(R.id.viewSnack), "Enter password!",Snackbar.LENGTH_LONG).show();

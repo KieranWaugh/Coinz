@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 
+import android.graphics.Typeface;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -80,6 +81,16 @@ public class bankActivity extends AppCompatActivity {
         Button transferButton = findViewById(R.id.transferButton);
         transferButton.setOnClickListener(transferClick);
 
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/game_font.ttf");
+        bankButton.setTypeface(typeface);
+        transferButton.setTypeface(typeface);
+        TextView welc = findViewById(R.id.welcome);
+        welc.setTypeface(typeface);
+        TextView coinz = findViewById(R.id.coinzBank);
+        TextView bal = findViewById(R.id.balance);
+        coinz.setTypeface(typeface);
+        bal.setTypeface(typeface);
+
         getCollected();
         getRates();
         super.onCreate(savedInstanceState);
@@ -109,6 +120,7 @@ public class bankActivity extends AppCompatActivity {
             return false;
         });
 
+
         try {
 
             JSONObject json = new JSONObject(mapData);
@@ -123,6 +135,10 @@ public class bankActivity extends AppCompatActivity {
         Log.d(tag, "[onCreate] " + collected.toString());
 //        TextView txt = findViewById(R.id.ratesView);
 //        txt.setText("Daily Exchange Rates:\nSHILL - " + SHILLrate + "\nQUID - " + QUIDrate + "\nPENY - " + PENYrate + "\nDOLR - " + DOLRrate);
+
+
+
+
 
 
 
@@ -201,7 +217,7 @@ public class bankActivity extends AppCompatActivity {
 
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
         CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
-       cr.get().addOnCompleteListener(task -> {
+        cr.get().addOnCompleteListener(task -> {
            if (task.isSuccessful()) {
 
                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
@@ -358,6 +374,8 @@ public class bankActivity extends AppCompatActivity {
     public void updateGoldUI(double gold){
         TextView goldBalView = findViewById(R.id.goldBalView);
         goldBalView.setText(gold + " GOLD");
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/game_font.ttf");
+        goldBalView.setTypeface(typeface);
     }
 
 

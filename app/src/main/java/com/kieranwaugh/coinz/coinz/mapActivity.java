@@ -65,9 +65,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     public String mapData;
     private double distanceWalked;
     private FloatingActionButton collectButton;
+    private FloatingActionButton shopButton;
     private final String savedMapData = "mapData";
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
-    String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+    String dateDB = new SimpleDateFormat("yyyy-MM-   dd", Locale.getDefault()).format(new Date());
     public List<coin> coinsList = new ArrayList<>();
     public HashMap<String, Marker> markers= new HashMap<>();
     public ArrayList<Marker> collectedMarkers = new ArrayList<>();
@@ -77,6 +78,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
     private String statsREF;
     private PlayerStats stats;
+    private Marker shop;
 
 
 
@@ -117,7 +119,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView.getMapAsync(this);
             //getCollected();
         collectButton = findViewById(R.id.floatingActionButton2);
+        shopButton = findViewById(R.id.floatingActionButton3);
         collectButton.setVisibility(View.INVISIBLE);
+        shopButton.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -137,6 +141,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }else{
 
                 map = mapboxMap;
+                MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop");
+                shop = mapboxMap.addMarker(mo);
 
                 FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
                 CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
@@ -175,8 +181,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 int iconInt = getIcon("coin", cxt);
                                 IconFactory iconFactory = IconFactory.getInstance(this);
                                 Icon icon =  iconFactory.fromResource(iconInt);
-                                MarkerOptions mo = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon);
-                                Marker m = mapboxMap.addMarker(mo);
+                                MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon);
+                                Marker m = mapboxMap.addMarker(mk);
                                 coin coin = new coin(id, value, currency, lng,lat,false);
                                 coinsList.add(coin);
                                 markers.put(id, m);
@@ -268,7 +274,17 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 setCameraPosition(location);
 
 
+                if (collectOK(shop.getPosition())){
+                    shopButton.setVisibility(View.VISIBLE);
+                    shopButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(mapActivity.this, ShopActivity.class);
+                            startActivity(intent);
+                        }
+                    });
 
+                }
                 for (int i = 0; i < coinsList.size(); i++){
                     coin coin = coinsList.get(i);
                     Marker m = (markers.get(coin.getId()));

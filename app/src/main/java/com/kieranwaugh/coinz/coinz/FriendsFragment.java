@@ -153,16 +153,12 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
                         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                ArrayList<String> ref = new ArrayList<>();
-                                ArrayList<User> user = new ArrayList<>();
 
-                                Log.d(tag, "in on click ok");
                                 newEmail[0] = input.getText().toString();
                                 Log.d(tag, "email is " +  newEmail[0]);
                                 final User[] newFriend = new User[1];
                                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                                 if (!newEmail[0].equals("")) {
-
 
                                     CollectionReference cr = db.collection("user").document(newEmail[0]).collection("INFO");
                                     cr.get().addOnCompleteListener(task -> {

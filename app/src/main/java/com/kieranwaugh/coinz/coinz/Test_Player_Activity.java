@@ -3,24 +3,16 @@ package com.kieranwaugh.coinz.coinz;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,7 +26,6 @@ public class Test_Player_Activity extends AppCompatActivity {
     private User user;
     private TextView name;
     private ImageView profilePic;
-    private static PlayerStats stats;
 
 
     @Override
@@ -42,38 +33,31 @@ public class Test_Player_Activity extends AppCompatActivity {
         getData();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test__player);
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
-        Menu menu = bottomNavigationView.getMenu();
-        ViewPager vpPager = (ViewPager) findViewById(R.id.vpPager);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
+        ViewPager vpPager = findViewById(R.id.vpPager);
         adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
         vpPager.setAdapter(adapterViewPager);
         profilePic = findViewById(R.id.profilePicView);
         name = findViewById(R.id.nameView);
-        Intent intent = getIntent();
-        stats = (PlayerStats) intent.getSerializableExtra("stats");
 
         ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
-        ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.navigation_stats:
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()){
+                case R.id.navigation_stats:
 
-                        break;
+                    break;
 
-                    case R.id.navigation_map:
-                        Intent intent2 = new Intent(Test_Player_Activity.this, mapActivity.class);
-                        startActivity(intent2, options1.toBundle());
-                        break;
+                case R.id.navigation_map:
+                    Intent intent2 = new Intent(Test_Player_Activity.this, mapActivity.class);
+                    startActivity(intent2, options1.toBundle());
+                    break;
 
-                    case R.id.navigation_bank:
-                        Intent intent3 = new Intent(Test_Player_Activity.this, bankActivity.class);
-                        startActivity(intent3, options1.toBundle());
-                        break;
-                }
-                return false;
+                case R.id.navigation_bank:
+                    Intent intent3 = new Intent(Test_Player_Activity.this, bankActivity.class);
+                    startActivity(intent3, options1.toBundle());
+                    break;
             }
+            return false;
         });
 
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
@@ -82,8 +66,7 @@ public class Test_Player_Activity extends AppCompatActivity {
             if (task.isSuccessful()) {
 
                 for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                    int id = Integer.parseInt(document.get("iconID").toString());
-                    Log.d("test", "id is " + id);
+                    int id = Integer.parseInt(Objects.requireNonNull(document.get("iconID")).toString());
                     switch (id) {
                         case 2:
                             profilePic.setImageResource(R.mipmap.icon_2_round);
@@ -105,28 +88,23 @@ public class Test_Player_Activity extends AppCompatActivity {
             }
         });
 
-        profilePic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(Test_Player_Activity.this, profilePic);
-                popup.getMenuInflater().inflate(R.menu.profile_pic_click, popup.getMenu());
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        String sp = item.getTitle().toString();
-                        switch(sp){
-                            case "Sign Out":
-                                FirebaseAuth.getInstance().signOut();
-                                startActivity(new Intent(Test_Player_Activity.this, MainActivity.class));
-                                finish();
-                                break;
-                            case  "Change Profile Picture":
-                                startActivity(new Intent(Test_Player_Activity.this, pic_choice.class));
-                        }
-                        return true;
-                    }
-                });
-                popup.show();
-            }
+        profilePic.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(Test_Player_Activity.this, profilePic);
+            popup.getMenuInflater().inflate(R.menu.profile_pic_click, popup.getMenu());
+            popup.setOnMenuItemClickListener(item -> {
+                String sp = item.getTitle().toString();
+                switch(sp){
+                    case "Sign Out":
+                        FirebaseAuth.getInstance().signOut();
+                        startActivity(new Intent(Test_Player_Activity.this, MainActivity.class));
+                        finish();
+                        break;
+                    case  "Change Profile Picture":
+                        startActivity(new Intent(Test_Player_Activity.this, pic_choice.class));
+                }
+                return true;
+            });
+            popup.show();
         });
 
     }
@@ -188,7 +166,7 @@ public class Test_Player_Activity extends AppCompatActivity {
     public static class MyPagerAdapter extends FragmentPagerAdapter {
         private static int NUM_ITEMS = 2;
 
-        public MyPagerAdapter(FragmentManager fragmentManager) {
+        MyPagerAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
         }
 

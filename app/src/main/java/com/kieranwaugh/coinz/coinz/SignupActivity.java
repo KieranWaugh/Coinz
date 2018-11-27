@@ -1,9 +1,11 @@
 package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -76,29 +78,44 @@ public class SignupActivity extends AppCompatActivity {
 
                 if (TextUtils.isEmpty(email)) {
                     //Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
+                    Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    assert v1 != null;
+                    v1.vibrate(500);
                     Snackbar.make(findViewById(R.id.viewSnack), "Enter email address!",Snackbar.LENGTH_LONG).show();
                     return;
                 }
 
                 if (TextUtils.isEmpty(password)) {
+                    Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    assert v1 != null;
+                    v1.vibrate(500);
                     //Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
                     Snackbar.make(findViewById(R.id.viewSnack), "Enter password!",Snackbar.LENGTH_LONG).show();
                     return;
                 }
 
                 if (password.length() < 6) {
+                    Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    assert v1 != null;
+                    v1.vibrate(500);
                     //Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
                     Snackbar.make(findViewById(R.id.viewSnack), "Password too short, enter minimum 6 characters!",Snackbar.LENGTH_LONG).show();
                     return;
                 }
 
                 if(TextUtils.isEmpty(name)){
+                    Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    assert v1 != null;
+                    v1.vibrate(500);
                     Snackbar.make(findViewById(R.id.viewSnack), "Enter Name!",Snackbar.LENGTH_LONG).show();
                     return;
 
                 }
 
                 if (!password.equals(reEnter)){
+                    Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    assert v1 != null;
+                    v1.vibrate(500);
                     Snackbar.make(findViewById(R.id.viewSnack), "Passwords do not match!",Snackbar.LENGTH_LONG).show();
                     return;
                 }
@@ -123,7 +140,7 @@ public class SignupActivity extends AppCompatActivity {
                                     Gold gold = new Gold(0.0);
                                     //db.collection("users").document(email).collection(UID).add(gold);
                                     db.collection("bank").document(email).collection("gold").add(gold);
-                                    User u = new User(email, name, 1);
+                                    User u = new User(email, name, 1,25, 1);
                                     db.collection("user").document(email).collection("INFO").add(u);
                                     PlayerStats ps = new PlayerStats(0, 0, 0, 0, 0);
                                     db.collection("user").document(email).collection("STATS").add(ps);
