@@ -95,7 +95,7 @@
         android:background="@drawable/ripple"
         android:clickable="true"
         android:scaleType="center"
-        android:src="@drawable/ic_shopping_cart_black_24dp"
+        android:src="@drawable/ic_shopping_cart_white_24dp"
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

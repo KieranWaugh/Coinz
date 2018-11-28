@@ -7,17 +7,19 @@ public class User {
     private int iconID;
     private int radius;
     private int multi;
+    private double gold;
 
     public User(){
 
     }
 
-    public User(String email, String name, int iconID, int radius, int multi){
+    public User(String email, String name, int iconID, int radius, int multi, double gold){
         this.email = email;
         this.name = name;
         this.iconID = iconID;
         this.radius = radius;
         this.multi = multi;
+        this.gold = gold;
     }
 
     public String getEmail() {
@@ -38,5 +40,9 @@ public class User {
 
     public int getMulti() {
         return multi;
+    }
+
+    public double getGold() {
+        return gold;
     }
 }

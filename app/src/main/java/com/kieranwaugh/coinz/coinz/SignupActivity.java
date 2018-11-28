@@ -137,16 +137,16 @@ public class SignupActivity extends AppCompatActivity {
                                 } else {
                                     //String UID = FirebaseAuth.getInstance().getUid();
                                     FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                    Gold gold = new Gold(0.0);
+                                    //Gold gold = new Gold(0.0);
                                     //db.collection("users").document(email).collection(UID).add(gold);
-                                    db.collection("bank").document(email).collection("gold").add(gold);
-                                    User u = new User(email, name, 1,25, 1);
+                                    //db.collection("bank").document(email).collection("gold").add(gold);
+                                    User u = new User(email, name, 1,25, 1, 0); // initialises the new user to default icon, default  collection radius of 25m, multiplyer of 1x and a gold balance of 0
                                     db.collection("user").document(email).collection("INFO").add(u);
                                     PlayerStats ps = new PlayerStats(0, 0, 0, 0, 0);
                                     db.collection("user").document(email).collection("STATS").add(ps);
                                     //db.collection("user").document(email).collection("Friends").add(u);
                                     ActivityOptions options = ActivityOptions.makeCustomAnimation(SignupActivity.this, R.anim.nothing, R.anim.bottom_up);
-                                    startActivity(new Intent(SignupActivity.this, mapActivity.class), options.toBundle());
+                                    startActivity(new Intent(SignupActivity.this, HowToPlayActivity.class), options.toBundle());
                                     finish();
                                 }
                             }

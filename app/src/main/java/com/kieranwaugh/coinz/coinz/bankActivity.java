@@ -64,6 +64,7 @@ public class bankActivity extends AppCompatActivity {
     //public ArrayList <String> coinRefs = new ArrayList<>();
     public ArrayList<coin> collected = new ArrayList<>();
     private LinkedHashMap<String, coin> collectedMap = new LinkedHashMap<>();
+    String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
     String tag = "bankActivity";
     //ArrayList totals;
     private double goldBal;
@@ -128,6 +129,7 @@ public class bankActivity extends AppCompatActivity {
             QUIDrate = json.getJSONObject("rates").getDouble("QUID");
             PENYrate = json.getJSONObject("rates").getDouble("PENY");
             DOLRrate = json.getJSONObject("rates").getDouble("DOLR");
+            Log.d(tag, "PENY- " + PENYrate);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -176,13 +178,14 @@ public class bankActivity extends AppCompatActivity {
         String savedMapData = "mapData";
         SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
         mapData = FromFile.getString(date, "");
+        Log.d(tag, mapData);
 
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-        CollectionReference cr = rootRef.collection("bank").document(email).collection("gold");
+        CollectionReference cr = rootRef.collection("user").document(email).collection("INFO");
         cr.get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                    goldBal = Double.parseDouble(Objects.requireNonNull(document.get("balance")).toString());
+                    goldBal = Double.parseDouble(Objects.requireNonNull(document.get("gold")).toString());
                 }
                 updateGoldUI(goldBal);
 
@@ -213,18 +216,20 @@ public class bankActivity extends AppCompatActivity {
 
     }
 
-    public void getCollected(){
 
+    public void getCollected(){
+        Log.d(tag, "in getCollected");
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
         CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
+        Log.d(tag, dateDB);
         cr.get().addOnCompleteListener(task -> {
            if (task.isSuccessful()) {
-
+               Log.d(tag, "task successful");
                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                    String ref = (document.getId());
-                   Log.d(tag, ref);
+                   Log.d(tag, "ref is " + ref);
                    coin c = document.toObject(coin.class);
-
+                   Log.d(tag, "coin " + c);
                    assert c != null;
                    if (!c.isBanked()){
                        collectedMap.put(ref, c);
@@ -234,7 +239,10 @@ public class bankActivity extends AppCompatActivity {
                        Log.d(tag, "no banked " + bankedCount);
                    }
                }
+               Log.d(tag, collected.toString());
                 updateSpinnerUI(collected);
+           }else{
+               Log.d(tag, "task unsuccessful");
            }
        });
 
@@ -270,6 +278,7 @@ public class bankActivity extends AppCompatActivity {
                             popupIntent.putExtra("rate", SHILLrate);
                             break;
                         case ("PENY"):
+                            Log.d(tag, "rate is " + PENYrate);
                             popupIntent.putExtra("rate", PENYrate);
                             break;
                     }

@@ -68,7 +68,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     private FloatingActionButton shopButton;
     private final String savedMapData = "mapData";
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
-    String dateDB = new SimpleDateFormat("yyyy-MM-   dd", Locale.getDefault()).format(new Date());
+    String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     public List<coin> coinsList = new ArrayList<>();
     public HashMap<String, Marker> markers= new HashMap<>();
     public ArrayList<Marker> collectedMarkers = new ArrayList<>();
@@ -79,6 +79,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     private String statsREF;
     private PlayerStats stats;
     private Marker shop;
+    private int radius;
+    private int multiplyer;
+    private double alreadyWalked;
+
 
 
 
@@ -117,11 +121,22 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView = findViewById(R.id.mapboxMapView);
             mapView.onCreate(savedInstanceState);
             mapView.getMapAsync(this);
-            //getCollected();
         collectButton = findViewById(R.id.floatingActionButton2);
         shopButton = findViewById(R.id.floatingActionButton3);
         collectButton.setVisibility(View.INVISIBLE);
         shopButton.setVisibility(View.INVISIBLE);
+
+        CollectionReference cr = db.collection("user").document(email).collection("INFO");
+        cr.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+
+                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                        radius = Integer.parseInt(Objects.requireNonNull(document.get("radius")).toString());
+                        multiplyer = Integer.parseInt(Objects.requireNonNull(document.get("multi")).toString());
+                    }
+                }
+        });
+
         }
 
         @Override
@@ -141,7 +156,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }else{
 
                 map = mapboxMap;
-                MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop");
+                IconFactory iconF = IconFactory.getInstance(this);
+                Icon ic =  iconF.fromResource(R.drawable.shopping_logo);
+                MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop").icon(ic);
                 shop = mapboxMap.addMarker(mo);
 
                 FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
@@ -172,13 +189,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                             double value = jsonObject.getJSONObject("properties").getDouble("value");
                             String strValue = String.valueOf(value);
                             String currency = jsonObject.getJSONObject("properties").getString("currency");
-                            int markerSymbol = jsonObject.getJSONObject("properties").getInt("marker-symbol");
-                            String color = jsonObject.getJSONObject("properties").getString("marker-color");
-
 
                             if (!collected.contains(id)){
                                 Context cxt = getApplicationContext();
-                                int iconInt = getIcon("coin", cxt);
+                                int iconInt = getIcon(cxt);
                                 IconFactory iconFactory = IconFactory.getInstance(this);
                                 Icon icon =  iconFactory.fromResource(iconInt);
                                 MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon);
@@ -276,14 +290,15 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 if (collectOK(shop.getPosition())){
                     shopButton.setVisibility(View.VISIBLE);
-                    shopButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent(mapActivity.this, ShopActivity.class);
-                            startActivity(intent);
-                        }
+                    shopButton.setOnClickListener(v -> {
+                        Intent intent = new Intent(mapActivity.this, ShopActivity.class);
+                        intent.putExtra("radius", radius);
+                        intent.putExtra("multi", multiplyer);
+                        startActivity(intent);
                     });
 
+                }else{
+                    shopButton.setVisibility(View.INVISIBLE);
                 }
                 for (int i = 0; i < coinsList.size(); i++){
                     coin coin = coinsList.get(i);
@@ -324,7 +339,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             double markLat = coin.getLatitude();
             double marklng = coin.getLongitude();
 
-            return (distance(UserLat, UserLng, markLat, marklng) <= 25);
+            return (distance(UserLat, UserLng, markLat, marklng) <= radius);
             //Log.d(tag, "[collectedOK] distance to marker is " + (distance(UserLat, UserLng, markLat, marklng) ));
 
         }
@@ -396,7 +411,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView.onStop();
             if (collectedCoins.size()!=0){
                 Log.d(tag, "onStop" + collectedCoins.size());
-                double alreadyWalked = stats.getDistance();
+                alreadyWalked = stats.getDistance();
                 Log.d(tag, "[onStop] " + distanceWalked);
                 Log.d(tag, "[onStop] " + statsREF);
                 int collectedDOLRS = 0;
@@ -464,7 +479,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView.onDestroy();
             if (collectedCoins.size()!=0){
                 Log.d(tag, "onStop" + collectedCoins.size());
-                double alreadyWalked = stats.getDistance();
+                alreadyWalked = stats.getDistance();
                 Log.d(tag, "[onStop] " + distanceWalked);
                 Log.d(tag, "[onStop] " + statsREF);
                 int collectedDOLRS = 0;
@@ -547,8 +562,8 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    protected static int getIcon(final String resName, final Context cxt){
-        final int ResourceID = cxt.getResources().getIdentifier(resName, "drawable", cxt.getApplicationContext().getPackageName());
+    protected static int getIcon(final Context cxt){
+        final int ResourceID = cxt.getResources().getIdentifier("coin", "drawable", cxt.getApplicationContext().getPackageName());
         if (ResourceID == 0){
             throw new IllegalArgumentException();
         }else{

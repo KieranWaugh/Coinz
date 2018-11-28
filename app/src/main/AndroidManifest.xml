@@ -57,9 +57,12 @@
         <activity
             android:name=".pic_choice"
             android:theme="@style/AppTheme.PopupOverlay" />
-        <activity android:name=".ShopActivity"
-            android:theme="@style/AppTheme.PopupOverlay"/>
-
+        <activity
+            android:name=".ShopActivity"
+            android:theme="@style/AppTheme.PopupOverlay" />
+        <activity
+            android:name=".HowToPlayActivity"
+            android:label="@string/title_activity_how_to_play"></activity>
     </application>
 
 </manifest>

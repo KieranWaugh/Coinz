@@ -149,18 +149,11 @@ public class Test_Player_Activity extends AppCompatActivity {
         super.onDestroy();
     }
 
-//    public void getStats(){
-//        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-//        CollectionReference cr = rootRef.collection("user").document(email).collection("STATS");
-//        cr.get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//
-//                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-//                    stats = document.toObject(PlayerStats.class);
-//                }
-//            }
-//        });
-//    }
+    @Override
+    public void onBackPressed(){
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
+        startActivity(new Intent(Test_Player_Activity.this, MainActivity.class), options.toBundle());
+    }
 
 
     public static class MyPagerAdapter extends FragmentPagerAdapter {

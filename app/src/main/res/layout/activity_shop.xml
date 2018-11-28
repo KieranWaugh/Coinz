@@ -20,15 +20,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/mapboxMapView"
         app:layout_constraintVertical_bias="1.0">
 
     </android.support.design.widget.CoordinatorLayout>
 
     <ImageView
         android:id="@+id/shopItem1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="93dp"
+        android:layout_height="75dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -39,12 +38,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.20999998"
-        app:srcCompat="@mipmap/coin" />
+        app:srcCompat="@mipmap/m_50" />
 
     <ImageView
         android:id="@+id/shopItem2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="93dp"
+        android:layout_height="75dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -55,7 +54,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.20999998"
-        app:srcCompat="@mipmap/coin" />
+        app:srcCompat="@mipmap/x2" />
 
     <TextView
         android:id="@+id/shopItem1Text"
@@ -65,6 +64,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="TextView"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="@+id/shopItem1"
         app:layout_constraintStart_toStartOf="@+id/shopItem1"
         app:layout_constraintTop_toBottomOf="@+id/shopItem1" />
@@ -77,14 +77,15 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="TextView"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="@+id/shopItem2"
         app:layout_constraintStart_toStartOf="@+id/shopItem2"
         app:layout_constraintTop_toBottomOf="@+id/shopItem2" />
 
     <ImageView
         android:id="@+id/shopItem3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="93dp"
+        android:layout_height="75dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -95,7 +96,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/shopItem1Text"
         app:layout_constraintVertical_bias="0.100000024"
-        app:srcCompat="@mipmap/coin" />
+        app:srcCompat="@mipmap/x4" />
 
     <TextView
         android:id="@+id/shopItem3Text"
@@ -105,6 +106,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="TextView"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="@+id/shopItem3"
         app:layout_constraintStart_toStartOf="@+id/shopItem3"
         app:layout_constraintTop_toBottomOf="@+id/shopItem3" />
