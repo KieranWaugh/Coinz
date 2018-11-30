@@ -31,7 +31,7 @@
             android:name=".statsActivity"
             android:label="Statistics" />
         <activity
-            android:name=".bankActivity"
+            android:name=".BankActivity"
             android:label="Bank"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity

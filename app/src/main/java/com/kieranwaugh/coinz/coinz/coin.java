@@ -2,22 +2,16 @@ package com.kieranwaugh.coinz.coinz;
 
 
 import android.util.Log;
-
-import com.mapbox.mapboxsdk.annotations.Marker;
-
 import java.io.Serializable;
-import java.util.HashMap;
-
-public class coin implements Serializable {
-
-    public String id;
-    public double value;
-    public String currency;
 
 
+public class coin implements Serializable { // coin object implement serializable to allow for Intent.putExtra()
 
-    public double lng;
-    public double lat;
+    private String id;
+    private double value;
+    private String currency;
+    private double lng;
+    private double lat;
     private boolean banked;
 
     public coin(){
@@ -65,12 +59,6 @@ public class coin implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
-
-//    public Marker getMarker() {
-//        return marker;
-//    }
-
-
 
 
 }

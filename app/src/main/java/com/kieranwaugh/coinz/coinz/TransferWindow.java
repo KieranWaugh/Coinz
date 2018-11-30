@@ -3,9 +3,6 @@ package com.kieranwaugh.coinz.coinz;
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -14,14 +11,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
@@ -80,7 +74,7 @@ public class TransferWindow extends AppCompatActivity {
                     Log.d("transfer", c.getId() + " " + c.getId().length());
                     db.collection("wallet").document(friendList.get(selectedfriend).getEmail()).collection("collected ("+dateDB +")").add(c);
                     db.collection("wallet").document(email).collection("collected ("+dateDB +")").document(reference).update("banked", true);
-                    Intent i = new Intent(getApplicationContext(), bankActivity.class);
+                    Intent i = new Intent(getApplicationContext(), BankActivity.class);
                     ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
                     startActivity(i, options.toBundle());
                 }else{

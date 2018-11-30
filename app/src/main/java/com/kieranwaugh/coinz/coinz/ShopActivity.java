@@ -4,23 +4,18 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Objects;
 
@@ -95,7 +90,7 @@ public class ShopActivity extends AppCompatActivity {
                                                                      db.collection("user").document(email).collection("INFO").document(ref[0]).update("radius", 50);
                                                                      db.collection("user").document(email).collection("INFO").document(ref[0]).update("gold", goldBal - 250000);
                                                                      finish();
-                                                                     Intent i = new Intent(getApplicationContext(), bankActivity.class);
+                                                                     Intent i = new Intent(getApplicationContext(), BankActivity.class);
                                                                      ActivityOptions o = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
                                                                      startActivity(i, o.toBundle());
 
@@ -140,7 +135,7 @@ public class ShopActivity extends AppCompatActivity {
                                             db.collection("user").document(email).collection("INFO").document(ref[0]).update("multi", 2);
                                             db.collection("user").document(email).collection("INFO").document(ref[0]).update("gold", goldBal - 500000);
                                             finish();
-                                            Intent i = new Intent(getApplicationContext(), bankActivity.class);
+                                            Intent i = new Intent(getApplicationContext(), BankActivity.class);
                                             ActivityOptions o = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
                                             startActivity(i, o.toBundle());
 
@@ -182,7 +177,7 @@ public class ShopActivity extends AppCompatActivity {
                                             db.collection("user").document(email).collection("INFO").document(ref[0]).update("multi", 4);
                                             db.collection("user").document(email).collection("INFO").document(ref[0]).update("gold", goldBal - 750000);
                                             finish();
-                                            Intent i = new Intent(getApplicationContext(), bankActivity.class);
+                                            Intent i = new Intent(getApplicationContext(), BankActivity.class);
                                             ActivityOptions o = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
                                             startActivity(i, o.toBundle());
 

@@ -111,7 +111,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                         break;
 
                     case R.id.navigation_bank:
-                        Intent intent3 = new Intent(mapActivity.this, bankActivity.class);
+                        Intent intent3 = new Intent(mapActivity.this, BankActivity.class);
                         startActivity(intent3, options1.toBundle());
                         break;
                 }

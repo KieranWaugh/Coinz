@@ -6,12 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,7 +44,7 @@ public class statsActivity extends AppCompatActivity {
                         break;
 
                     case R.id.navigation_bank:
-                        Intent intent3 = new Intent(statsActivity.this, bankActivity.class);
+                        Intent intent3 = new Intent(statsActivity.this, BankActivity.class);
                         startActivity(intent3, options1.toBundle());
                         break;
                 }

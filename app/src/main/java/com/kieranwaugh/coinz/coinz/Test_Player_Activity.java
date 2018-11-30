@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -53,7 +52,7 @@ public class Test_Player_Activity extends AppCompatActivity {
                     break;
 
                 case R.id.navigation_bank:
-                    Intent intent3 = new Intent(Test_Player_Activity.this, bankActivity.class);
+                    Intent intent3 = new Intent(Test_Player_Activity.this, BankActivity.class);
                     startActivity(intent3, options1.toBundle());
                     break;
             }
