@@ -39,7 +39,7 @@ public class BankWindow extends AppCompatActivity {
         multiView.setVisibility(View.INVISIBLE); // sets users multi to invisible
 
         Intent intent = getIntent(); // gets the intent from the bank activity
-        coin c = (coin) intent.getSerializableExtra("coin"); // gets the coin value from the bank activity
+        Coin c = (Coin) intent.getSerializableExtra("coin"); // gets the coin value from the bank activity
         double gold = intent.getDoubleExtra("gold", 0.0); // gets the players current gold balance
         String reference = intent.getStringExtra("reference"); // gets the coins object reference in fireBase
         double rate = intent.getDoubleExtra("rate", 0.0); // gets the exchange rate fo the coins currency

@@ -45,7 +45,7 @@ public class TransferWindow extends AppCompatActivity {
 
 
         Intent intent = getIntent();
-        coin c = (coin) intent.getSerializableExtra("coin");
+        Coin c = (Coin) intent.getSerializableExtra("coin");
         String reference = intent.getStringExtra("reference");
         TextView curView = findViewById(R.id.currencyConfirm);
         curView.setText(c.getCurrency() + ": " + c.getValue());

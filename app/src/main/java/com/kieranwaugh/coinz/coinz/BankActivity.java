@@ -60,8 +60,8 @@ public class BankActivity extends AppCompatActivity {
     private Spinner spinner; // Drop down menu for coin selection
     private int selectedCoin; // location of the coin selected in the list to allow banking
     private int bankedCount; // total number banked coins that day
-    public ArrayList<coin> collected = new ArrayList<>(); // all coins collected by the player that day
-    private LinkedHashMap<String, coin> collectedMap = new LinkedHashMap<>(); // Hashmap with the object reference id as the Key and a related coin.
+    public ArrayList<Coin> collected = new ArrayList<>(); // all coins collected by the player that day
+    private LinkedHashMap<String, Coin> collectedMap = new LinkedHashMap<>(); // Hashmap with the object reference id as the Key and a related coin.
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date()); // date for shared preferences
     String tag = "BankActivity"; // Log tag
     private double goldBal; // Players gold balance
@@ -180,7 +180,7 @@ public class BankActivity extends AppCompatActivity {
            if (task.isSuccessful()) {
                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                    String ref = (document.getId()); // gets the objects reference to allow update later
-                   coin c = document.toObject(coin.class); // re-creates the coin object from firestore
+                   Coin c = document.toObject(Coin.class); // re-creates the coin object from firestore
                    assert c != null;
                    if (!c.isBanked()){ // if the coin is not marked as banked
                        collectedMap.put(ref, c); //  adds the object reference and the coin to teh hashMap
@@ -215,7 +215,7 @@ public class BankActivity extends AppCompatActivity {
                     List<String> docRefs = new ArrayList<>(collectedMap.keySet()); // creates an array list of all the firestore object references
                     String reference = docRefs.get(selectedCoin); // gets the reference for the coin in fireBase to allow an update
 
-                    coin c = collectedMap.get(reference); // gets the coin the user wishes to bank
+                    Coin c = collectedMap.get(reference); // gets the coin the user wishes to bank
                     Log.d(tag, "[onClick] retrieved selected coin");
                     Intent bankPopUp = new Intent(BankActivity.this, BankWindow.class); // creates the intent to start the pop up activity to bank the coin
                     assert c != null;
@@ -259,7 +259,7 @@ public class BankActivity extends AppCompatActivity {
                     List<String> docRefs = new ArrayList<>(collectedMap.keySet()); // creates an array list of all the firestore object references
                     String reference = docRefs.get(selectedCoin); // gets the reference for the coin in fireBase to allow an update
 
-                    coin c = collectedMap.get(reference); // gets the coin the user wishes to transfer
+                    Coin c = collectedMap.get(reference); // gets the coin the user wishes to transfer
                     assert c != null;
                     if (c.getId().length() > 29) { // a coin id is always 29 characters, hence if the id has the word SENT at the end it cannot be sent again
                         Snackbar.make(findViewById(R.id.viewSnack), "This coin was transferred to you.", Snackbar.LENGTH_SHORT).show();
@@ -294,7 +294,7 @@ public class BankActivity extends AppCompatActivity {
     };
 
 
-    public void updateSpinnerUI(ArrayList<coin> collected){ // method to update the spinner menu
+    public void updateSpinnerUI(ArrayList<Coin> collected){ // method to update the spinner menu
         Log.d(tag, "[updateSpinnerUI] updating UI");
         String[] drop = new String[collected.size() + 1]; // array for thr drop down list
         drop[0] = "Select coin."; // adds a default value to the menu

@@ -69,11 +69,11 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     private final String savedMapData = "mapData";
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
     String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-    public List<coin> coinsList = new ArrayList<>();
+    public List<Coin> coinsList = new ArrayList<>();
     public HashMap<String, Marker> markers= new HashMap<>();
     public ArrayList<Marker> collectedMarkers = new ArrayList<>();
     public ArrayList<String> collected = new ArrayList<>();
-    public ArrayList<coin> collectedCoins = new ArrayList<>();
+    public ArrayList<Coin> collectedCoins = new ArrayList<>();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
     private String statsREF;
@@ -167,7 +167,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     if (task.isSuccessful()) {
 
                         for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                            coin c = document.toObject(coin.class);
+                            Coin c = document.toObject(Coin.class);
                             assert c != null;
                             collected.add(c.getId());
                             collectedCoins.add(c);
@@ -197,7 +197,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 Icon icon =  iconFactory.fromResource(iconInt);
                                 MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon);
                                 Marker m = mapboxMap.addMarker(mk);
-                                coin coin = new coin(id, value, currency, lng,lat,false);
+                                Coin coin = new Coin(id, value, currency, lng,lat,false);
                                 coinsList.add(coin);
                                 markers.put(id, m);
                             }else{
@@ -301,7 +301,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     shopButton.setVisibility(View.INVISIBLE);
                 }
                 for (int i = 0; i < coinsList.size(); i++){
-                    coin coin = coinsList.get(i);
+                    Coin coin = coinsList.get(i);
                     Marker m = (markers.get(coin.getId()));
                     if (!collectedMarkers.contains(m)){
                         assert m != null;
@@ -419,7 +419,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 int collectedPENYS = 0;
                 int collectedSHILS = 0;
                 for (int i = 0; i < collectedCoins.size(); i++){
-                    coin c = collectedCoins.get(i);
+                    Coin c = collectedCoins.get(i);
                     assert c!=null;
                     switch (c.getCurrency()){
                         case "DOLR":
@@ -487,7 +487,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 int collectedPENYS = 0;
                 int collectedSHILS = 0;
                 for (int i = 0; i < collectedCoins.size(); i++){
-                    coin c = collectedCoins.get(i);
+                    Coin c = collectedCoins.get(i);
                     switch (c.getCurrency()){
                         case "DOLR":
                             collectedDOLRS +=1;
