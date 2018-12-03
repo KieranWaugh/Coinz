@@ -97,12 +97,12 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
                 }
 
             }
-            names = friendNames.toArray(new String[0]);
-            pics = profilePics.stream().mapToInt(i -> i).toArray();
-            ListView li = view.findViewById(R.id.listViewPassword);
-            li.setAdapter(new FriendsAdapter(getActivity(), R.layout.fragment_friends, names));
+            names = friendNames.toArray(new String[0]); // creates an array of the friends names
+            pics = profilePics.stream().mapToInt(i -> i).toArray(); // creates an array of the profile pictures
+            ListView li = view.findViewById(R.id.listViewPassword); // creates a list view in the fragment (RecyclerView could have been used ofr material design, however listview looked more 'gamey')
+            li.setAdapter(new FriendsAdapter(getActivity(), R.layout.fragment_friends, names)); // sets the listView adapter
 
-            li.setOnItemClickListener((parent, view1, position, id) -> {
+            li.setOnItemClickListener((parent, view1, position, id) -> { // on listView click will open the bank
 
 
                 Log.d("FriendsFragment", "id is " + position);
@@ -111,45 +111,41 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
                     final String[] newEmail = new String[1];
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle("Enter Email");
-// I'm using fragment here so I'm using getView() to provide ViewGroup
-// but you can provide here any other instance of ViewGroup from your Fragment / Activity
-                    View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.email_input, (ViewGroup) getView(), false);
-// Set up the input
+
+                    View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.email_input, (ViewGroup) getView(), false); // Displays the dialog Using fragment, so using getView() to provide ViewGroup
+
                     final EditText input = viewInflated.findViewById(R.id.input);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
                     builder.setView(viewInflated);
 
-// Set up the buttons
-                    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> { // Set up the buttons (OK button)
 
-                        newEmail[0] = input.getText().toString();
+                        newEmail[0] = input.getText().toString(); // gets the inputted email
                         Log.d(tag, "email is " +  newEmail[0]);
-                        final User[] newFriend = new User[1];
+                        final User[] newFriend = new User[1]; // creates a user array of size 1 (required by fireBase as its local instead of global)
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        if (!newEmail[0].equals("")) {
+                        if (!newEmail[0].equals("")) { // Only if the text input is not blank.
 
-                            CollectionReference cr1 = db.collection("user").document(newEmail[0]).collection("INFO");
+                            CollectionReference cr1 = db.collection("user").document(newEmail[0]).collection("INFO"); // getting the new friends info
                             cr1.get().addOnCompleteListener(task1 -> {
                                 if (task1.isSuccessful()) {
                                     for (DocumentSnapshot document : Objects.requireNonNull(task1.getResult())) {
-                                        newFriend[0] = document.toObject(User.class);
+                                        newFriend[0] = document.toObject(User.class); // user object
                                     }
-                                    if (newFriend[0] != null) {
-                                        if (!friendsEmails.contains(newEmail[0])){
-                                            db.collection("user").document(email).collection("Friends").add(newFriend[0]);
-                                            Intent i = new Intent(getApplicationContext(), Test_Player_Activity.class);
-                                            ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
-                                            startActivity(i, options.toBundle());
-                                            //FragmentTransaction ft = getFragmentManager().beginTransaction();
-                                            //ft.detach(FriendsFragment.this).attach(FriendsFragment.this).commit();
+                                    if (newFriend[0] != null) { // player has inputted an email
+                                        if (!friendsEmails.contains(newEmail[0])){ // User is not already friends with this email
+                                            db.collection("user").document(email).collection("Friends").add(newFriend[0]); // adds user to players friends list
+                                            Intent i = new Intent(getApplicationContext(), Test_Player_Activity.class); // refreshes the activity to update the list from fireBase
+                                            ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out); // adds animation to refresh
+                                            startActivity(i, options.toBundle()); // starts activity
                                         }else{
                                             Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.viewSnack), "You are already friends!",Snackbar.LENGTH_SHORT).show();
+                                            // Player is already friends with the inputted email
                                         }
 
                                     }
                                     else {
                                         Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.viewSnack), "Email does not exist, Try again!",Snackbar.LENGTH_SHORT).show();
-
+                                        // email does not exist within fireBase
                                         Log.d(tag, "cant add friend");
 
                                     }
@@ -160,27 +156,27 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
 //                                    FragmentTransaction ft = getFragmentManager().beginTransaction();
 //                                    ft.detach(FriendsFragment.this).attach(FriendsFragment.this).commit();
                             });
-                            builder.setNegativeButton(android.R.string.cancel, (dialog1, which1) -> dialog1.cancel());
+                            builder.setNegativeButton(android.R.string.cancel, (dialog1, which1) -> dialog1.cancel()); // cancel button
 
                         }
-                        dialog.cancel();
+                        dialog.cancel(); // closes dialog
                     });
 
-                    builder.show();
+                    builder.show(); // shows dialog box
                 }else{
 
-                    Intent i = new Intent(getActivity(), BankActivity.class);
+                    Intent i = new Intent(getActivity(), BankActivity.class); // refresh of the activity
                     ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
                     startActivity(i, options.toBundle());
                 }
 
             });
         });
-        return view;
+        return view; // returns the fragments view.
     }
 
 
-    class FriendsAdapter extends ArrayAdapter {
+    class FriendsAdapter extends ArrayAdapter { // adapter for the friend list
         FriendsAdapter(Context context, int resource, String[] objects) {
             super(context, resource, objects);
         }
@@ -188,15 +184,14 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            View v=((Activity)getContext()).getLayoutInflater().inflate(R.layout.friend_layoyt,null);
-            TextView txt1 = v.findViewById(R.id.textViewpasslay);
-            txt1.setText(names[position]);
-            ImageView img = v.findViewById(R.id.imageViewpasslay);
+            View v=((Activity)getContext()).getLayoutInflater().inflate(R.layout.friend_layoyt,null); // sets the layout for each list item
+            TextView txt1 = v.findViewById(R.id.textViewpasslay); // text layout
+            txt1.setText(names[position]); // sets the text from the friends array populated in onCreate
+            ImageView img = v.findViewById(R.id.imageViewpasslay); // image layout (profile pic)
+            img.setBackgroundResource(pics[position]); // sets the pic from the pics array populated in onCreate
 
-            img.setBackgroundResource(pics[position]);
 
-
-            return v;
+            return v; //returns the view
         }
     }
 

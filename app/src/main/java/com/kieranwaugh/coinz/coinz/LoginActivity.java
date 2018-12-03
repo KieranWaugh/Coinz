@@ -1,6 +1,6 @@
 package com.kieranwaugh.coinz.coinz;
 
-import android.app.ActionBar;
+
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -10,25 +10,13 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
@@ -54,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         Button btnSignup = findViewById(R.id.btn_signup);
         Button btnLogin = findViewById(R.id.btn_login);
-        Button btnReset = (Button) findViewById(R.id.btn_reset_password);
+        Button btnReset = findViewById(R.id.btn_reset_password);
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/game_font.ttf");
         btnLogin.setTypeface(typeface);
         btnReset.setTypeface(typeface);
