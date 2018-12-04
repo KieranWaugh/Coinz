@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ public class Test_Player_Activity extends AppCompatActivity {
     private User user;
     private TextView name;
     private ImageView profilePic;
+    private String tag = "PlayerActivity";
 
 
     @Override
@@ -119,6 +121,7 @@ public class Test_Player_Activity extends AppCompatActivity {
                 }
                 assert user != null;
                 name.setText(user.getName());
+                Log.d(tag, "[getData] " + user.getName());
 
             }
         });

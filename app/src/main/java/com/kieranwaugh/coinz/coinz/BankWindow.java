@@ -71,7 +71,7 @@ public class BankWindow extends AppCompatActivity {
 
             }else{
                 curView.setText(c.getCurrency() + ": " + c.getValue()); // refreshes the coin information view
-                goldView.setText(c.getValue()*rate + " GOLD"); // refreshes the gold value view
+                goldView.setText((c.getValue() * multi)*rate + " GOLD");// refreshes the gold value view
             }
         });
 

@@ -128,7 +128,7 @@ public class BankActivity extends AppCompatActivity {
         try {
             Log.d(tag, "[onCreate] getting exchange rates");
             JSONObject json = new JSONObject(mapData); // creates a json object from the mapData downloaded from the informatics server
-            SHILLrate = json.getJSONObject("rates").getDouble("SHIL"); // sets the SHILLrate
+            SHILLrate = json.getJSONObject("rates").getDouble("SHIL"); // sets the SHILrate
             Log.d(tag, "[getRates] SHIL rate " + SHILLrate);
             QUIDrate = json.getJSONObject("rates").getDouble("QUID"); // sets the QUIDrate
             Log.d(tag, "[getRates] QUID rate " + QUIDrate);
