@@ -210,6 +210,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }
                 });
             }
+
         }
 
         private void enableLocation() {
@@ -581,9 +582,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     statsREF = (document.getId());
                     stats = document.toObject(PlayerStats.class);
                 }
+                assert stats != null;
+                Log.d(tag, "[getStats] " + stats.getDistance());
             }
-            assert stats != null;
-            Log.d(tag, "[getStats] " + stats.getDistance());
+
         });
     }
 

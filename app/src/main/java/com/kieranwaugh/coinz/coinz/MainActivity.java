@@ -2,7 +2,6 @@ package com.kieranwaugh.coinz.coinz;
 
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date()); // Daily date for map download on informatics server
     private FirebaseAuth auth; // fireBase authentication
     private TextView tap; // text view prompting user to tap screen to begin
+    String tag = "MainActivity"; // log cat tag
+
 
 
     @Override
@@ -44,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance(); // gets fireBase authentication, null if no user is logged in
 
-        String tag = "MainActivity"; // log cat tag
         Log.d(tag, "[onCreate] The date is " + date + " fetching map");
         SharedPreferences FromFile = getSharedPreferences("mapData", Context.MODE_PRIVATE); // gets shared preferences
         if (FromFile.contains(date)) { // if the tag for today exists then the map is already downloaded
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(startMain);
     }
 
+
+
     public void setProgressDialog() {
 
         int llPadding = 30;
@@ -167,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
             dialog.getWindow().setAttributes(layoutParams);
         }
     }
+
+
 
 
 
