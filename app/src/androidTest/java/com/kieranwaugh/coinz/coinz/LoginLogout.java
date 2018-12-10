@@ -148,7 +148,7 @@ public class LoginLogout {
         }
 
         ViewInteraction bottomNavigationItemView = onView(
-                allOf(withId(R.id.navigation_stats),
+                allOf(withId(R.id.navigation_player),
                         childAtPosition(
                                 childAtPosition(
                                         allOf(withId(R.id.navigation),

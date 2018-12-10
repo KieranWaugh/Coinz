@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.bottom_up, R.anim.nothing); // creates animation for activity change
-                    startActivity(new Intent(MainActivity.this, mapActivity.class), options.toBundle()); // starts the map activity
+                    startActivity(new Intent(MainActivity.this, MapActivity.class), options.toBundle()); // starts the map activity
 
                 } else { // user is not logged in
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);// creates animation for activity change
@@ -107,16 +107,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-    }
+    } // android lifecycle
 
 
     @Override
     public void onStop() {
         super.onStop();
-    }
+    } // android life cycle
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed(){ // pressing android ui back will return to the android home screen
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -125,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public void setProgressDialog() {
-
+    public void setProgressDialog() { // Spinner to display user login progress, keeps the ui active while authentication is being received.
+        // https://stackoverflow.com/questions/51862117/how-can-i-center-the-title-in-a-progressdialog-android
         int llPadding = 30;
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.HORIZONTAL);

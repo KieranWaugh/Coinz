@@ -101,13 +101,13 @@ public class BankActivity extends AppCompatActivity {
         ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out); // creates the animation for the activity start
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){ // gets the menu bar item selection
-                case R.id.navigation_stats: // stats activity
+                case R.id.navigation_player: // stats activity
                     Intent intent0 = new Intent(BankActivity.this, Test_Player_Activity.class); // creates the intent
                     startActivity(intent0,options.toBundle()); // starts the activity with the animations
                     break;
 
                 case R.id.navigation_map: // map activity
-                    Intent intent1 = new Intent(BankActivity.this, mapActivity.class);
+                    Intent intent1 = new Intent(BankActivity.this, MapActivity.class);
                     startActivity(intent1, options.toBundle());
                     break;
 

@@ -34,12 +34,12 @@ public class statsActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
-                    case R.id.navigation_stats:
+                    case R.id.navigation_player:
 
                         break;
 
                     case R.id.navigation_map:
-                        Intent intent2 = new Intent(statsActivity.this, mapActivity.class);
+                        Intent intent2 = new Intent(statsActivity.this, MapActivity.class);
                         startActivity(intent2, options1.toBundle());
                         break;
 

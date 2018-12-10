@@ -53,35 +53,35 @@ import java.util.Locale;
 import java.util.Objects;
 
 @IgnoreExtraProperties
-public class mapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
 
 
-    private String tag = "MapActivity";
-    private MapView mapView;
-    private MapboxMap map;
-    private LocationEngine locationEngine;
-    private Location originLocation;
-    private Location previousLocation;
-    public String mapData;
-    private double distanceWalked;
-    private FloatingActionButton collectButton;
-    private FloatingActionButton shopButton;
+    private String tag = "MapActivity"; // tag for logcat
+    private MapView mapView; // variable to for map
+    private MapboxMap map; // map from mapbox
+    private LocationEngine locationEngine; // user location
+    private Location originLocation; // current user location
+    private Location previousLocation; // previous location of the player
+    public String mapData; // JSON string of map data from the informatics server
+    private double distanceWalked; // distance walked by the player during the life of this activity
+    private FloatingActionButton collectButton; // button to collect coins
+    private FloatingActionButton shopButton; // button to open shop
     private final String savedMapData = "mapData";
-    String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
-    String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-    public List<Coin> coinsList = new ArrayList<>();
-    public HashMap<String, Marker> markers= new HashMap<>();
-    public ArrayList<Marker> collectedMarkers = new ArrayList<>();
-    public ArrayList<String> collected = new ArrayList<>();
-    public ArrayList<Coin> collectedCoins = new ArrayList<>();
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
-    private String statsREF;
-    private PlayerStats stats;
-    private Marker shop;
-    private int radius;
-    private int multiplyer;
-    private double alreadyWalked;
+    private String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date()); // date to access the daily map
+    private String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()); // date for databsae tree
+    public List<Coin> coinsList = new ArrayList<>(); // list of the coins on the map
+    public HashMap<String, Marker> markers= new HashMap<>(); // coin id with a associated marker on the map.
+    public ArrayList<Marker> collectedMarkers = new ArrayList<>(); // markers that have been removed from the map
+    public ArrayList<String> collected = new ArrayList<>(); // ID of collected coins
+    public ArrayList<Coin> collectedCoins = new ArrayList<>(); // list of the collected coins
+    private FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase firestore initialisation to the root of the database tree
+    private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(); // email address of authenticated user
+    private String statsREF; // reference for the stats leaf in the database
+    private PlayerStats stats; // statistics object for the player
+    private Marker shop; // creates the marker for the shop placed on the map
+    private int radius; // current collection radius for coin collection ( default of 25) in metres
+    private int multiplyer; // multiplier for coin value (default of 1)
+    private double alreadyWalked; // distance already walked by the player in metres
 
 
 
@@ -89,44 +89,43 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            getStats();
-            Mapbox.getInstance(this, getString(R.string.access_token));
-            setContentView(R.layout.activity_map);
-            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
+            getStats(); // runs function to get the users statistics
+            Mapbox.getInstance(this, getString(R.string.access_token)); // assigns the key to this instance of mapbox map
+            setContentView(R.layout.activity_map); // sets the activity layout
+            BottomNavigationView bottomNavigationView = findViewById(R.id.navigation); // initialises the bottom navigation bar
             Menu menu = bottomNavigationView.getMenu();
-            MenuItem menuItem = menu.getItem(1);
+            MenuItem menuItem = menu.getItem(1); // highlights the map icon on the bar
             menuItem.setChecked(true);
-            ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
-            ActivityOptions options2 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
-            bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out); // transition animation (cross fade)
+            bottomNavigationView.setOnNavigationItemSelectedListener(item -> { // listener for icon selected on the bar
                 switch (item.getItemId()){
-                    case R.id.navigation_stats:
-                        Intent intent1 = new Intent(mapActivity.this, Test_Player_Activity.class);
+                    case R.id.navigation_player:
+                        Intent intent1 = new Intent(MapActivity.this, Test_Player_Activity.class); // if player is selected
                         intent1.putExtra("stats", stats);
-                        startActivity(intent1,options2.toBundle());
+                        startActivity(intent1,options.toBundle()); // start player activity
                         break;
 
-                    case R.id.navigation_map:
+                    case R.id.navigation_map: // do nothing if map is selected
 
                         break;
 
-                    case R.id.navigation_bank:
-                        Intent intent3 = new Intent(mapActivity.this, BankActivity.class);
-                        startActivity(intent3, options1.toBundle());
+                    case R.id.navigation_bank: // if bank is selected
+                        Intent intent3 = new Intent(MapActivity.this, BankActivity.class);
+                        startActivity(intent3, options.toBundle()); // start bank activity
                         break;
                 }
                 return false;
             });
 
-            mapView = findViewById(R.id.mapboxMapView);
+            mapView = findViewById(R.id.mapboxMapView); // sets the container for the map
             mapView.onCreate(savedInstanceState);
-            mapView.getMapAsync(this);
-        collectButton = findViewById(R.id.floatingActionButton2);
-        shopButton = findViewById(R.id.floatingActionButton3);
-        collectButton.setVisibility(View.INVISIBLE);
-        shopButton.setVisibility(View.INVISIBLE);
+            mapView.getMapAsync(this); // starts map asynchronous task
+            collectButton = findViewById(R.id.floatingActionButton2);
+            shopButton = findViewById(R.id.floatingActionButton3);
+            collectButton.setVisibility(View.INVISIBLE); // sets coin collection button to invisible
+            shopButton.setVisibility(View.INVISIBLE); // sets shop button to invisible
 
-        CollectionReference cr = db.collection("user").document(email).collection("INFO");
+        CollectionReference cr = db.collection("user").document(email).collection("INFO"); // pulls the players radius and multiplier from the database
         cr.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
 
@@ -142,45 +141,45 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         @Override
         public void onMapReady(MapboxMap mapboxMap) {
             Log.d(tag, "[onMapReady] " + collected.toString());
-            SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE);
-            if (FromFile.contains(date)){
-                mapData = FromFile.getString(date, "");
+            SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE); // // initialises devices shared preferences
+            if (FromFile.contains(date)){ // searches shared preferences for a file with the date as the tag
+                mapData = FromFile.getString(date, ""); // if found, the map is already downloaded today and can be pulled
                 Log.d(tag, "[onMapReady] map data taken from file");
                 Log.d(tag, mapData);
             }else {
                 Log.d(tag, "[onMapReady] problem finding map data, taking from server");
-                mapData = DownloadCompleteRunner.result;
+                mapData = DownloadCompleteRunner.result; // else the map must be downloaded
             }
-            if (mapboxMap == null) {
+            if (mapboxMap == null) { // map must not be null
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
 
                 map = mapboxMap;
                 IconFactory iconF = IconFactory.getInstance(this);
-                Icon ic =  iconF.fromResource(R.drawable.shopping_logo);
-                MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop").icon(ic);
-                shop = mapboxMap.addMarker(mo);
+                Icon ic =  iconF.fromResource(R.drawable.shopping_logo); // create a marker icon of the shop logo
+                MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop").icon(ic); // sets title
+                shop = mapboxMap.addMarker(mo); // adds the shop to the map
 
                 FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
                 CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
-                cr.get().addOnCompleteListener(task -> {
+                cr.get().addOnCompleteListener(task -> { // pulling the players wallet from the database
                     if (task.isSuccessful()) {
 
                         for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                             Coin c = document.toObject(Coin.class);
                             assert c != null;
-                            collected.add(c.getId());
-                            collectedCoins.add(c);
+                            collected.add(c.getId()); // adds the coin id to the collected arraylist
+                            collectedCoins.add(c); // adds the coin to the arraylist
 
                         }
                     }
 
-                    List<Feature> features = FeatureCollection.fromJson(mapData).features();
+                    List<Feature> features = FeatureCollection.fromJson(mapData).features(); // creates a feature collection for each marker in the JSON string
                     enableLocation();
                     assert features != null;
                     for (int i = 0; i < features.size(); i++){
                         try {
-
+                            // extracting the data from the json string for each element of the feature collection.
                             JSONObject jsonObject = new JSONObject(features.get(i).toJson());
                             JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
                             double lng = Double.parseDouble(coordinates.get(0).toString());
@@ -190,18 +189,18 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                             String strValue = String.valueOf(value);
                             String currency = jsonObject.getJSONObject("properties").getString("currency");
 
-                            if (!collected.contains(id)){
+                            if (!collected.contains(id)){ // only add the marker if it has not been collected already
                                 Context cxt = getApplicationContext();
                                 int iconInt = getIcon(cxt);
-                                IconFactory iconFactory = IconFactory.getInstance(this);
+                                IconFactory iconFactory = IconFactory.getInstance(this); //creates the icon for the marker (coin icon)
                                 Icon icon =  iconFactory.fromResource(iconInt);
-                                MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon);
-                                Marker m = mapboxMap.addMarker(mk);
-                                Coin coin = new Coin(id, value, currency, lng,lat,false);
-                                coinsList.add(coin);
-                                markers.put(id, m);
+                                MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon); // creates the marker with its location, title and snippet
+                                Marker m = mapboxMap.addMarker(mk); // adds the marker to the map
+                                Coin coin = new Coin(id, value, currency, lng,lat,false); // creates a coin object with the values from the json string and sets banked to false
+                                coinsList.add(coin); // adds the coi to the list
+                                markers.put(id, m); // adds the marker to the list
                             }else{
-                                continue;
+                                continue; // if the coin is already collected, skip and move the next element of the feature collection
                             }
                             Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
                         } catch (JSONException e) {
@@ -213,7 +212,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         }
 
-        private void enableLocation() {
+        private void enableLocation() { // enables the location for the player
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
                 Log.d(tag, "[enableLocation] Permissions are granted");
                 initializeLocationEngine();
@@ -226,7 +225,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         @SuppressWarnings("MissingPermission")
-        private void initializeLocationEngine(){
+        private void initializeLocationEngine(){ // initialises the location for the player
             locationEngine = new LocationEngineProvider(this).obtainBestLocationEngineAvailable();
             locationEngine.setInterval(5000); // preferably every 5 seconds
             locationEngine.setFastestInterval(1000); // at most every second
@@ -244,7 +243,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         @SuppressWarnings("MissingPermission")
-        private void initializeLocationLayer() {
+        private void initializeLocationLayer() { // shows the players location
             if (mapView == null) {
                 Log.d(tag, "mapView is null");
             }else{
@@ -261,13 +260,13 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
 
-        private void setCameraPosition(Location location) {
+        private void setCameraPosition(Location location) { // moves the map along with the player
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         }
 
         @Override
-        public void onLocationChanged(Location location) {
+        public void onLocationChanged(Location location) { // when the players loatoin has changed
             if (location == null) {
                 Log.d(tag, "[onLocationChanged] location is null");
 
@@ -281,43 +280,43 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Log.d(tag, "prev " + previousLocation);
                     distanceWalked += distance(originLocation.getLatitude(), originLocation.getLongitude(), previousLocation.getLatitude(), previousLocation.getLongitude());
                     previousLocation = originLocation;
-                    Log.d(tag, "distance " + distanceWalked);
+                    Log.d(tag, "[onLocationChanged] distance walked " + distanceWalked);
 
                 }
-                originLocation = location;
+                originLocation = location; // sets the players current location
 
-                setCameraPosition(location);
+                setCameraPosition(location); // moves the camera
 
 
-                if (collectOK(shop.getPosition())){
-                    shopButton.setVisibility(View.VISIBLE);
+                if (collectOK(shop.getPosition())){ // if the user is close enough to the shop
+                    shopButton.setVisibility(View.VISIBLE); // show the shop button
                     shopButton.setOnClickListener(v -> {
-                        Intent intent = new Intent(mapActivity.this, ShopActivity.class);
-                        intent.putExtra("radius", radius);
-                        intent.putExtra("multi", multiplyer);
+                        Intent intent = new Intent(MapActivity.this, ShopActivity.class); // opens the shop
+                        intent.putExtra("radius", radius); // send the players current radius
+                        intent.putExtra("multi", multiplyer); // send the players current multiplier
                         startActivity(intent);
                     });
 
                 }else{
-                    shopButton.setVisibility(View.INVISIBLE);
+                    shopButton.setVisibility(View.INVISIBLE); // shop button remains invisible
                 }
-                for (int i = 0; i < coinsList.size(); i++){
-                    Coin coin = coinsList.get(i);
-                    Marker m = (markers.get(coin.getId()));
+                for (int i = 0; i < coinsList.size(); i++){ // for each coin on the map
+                    Coin coin = coinsList.get(i); // gets the coin
+                    Marker m = (markers.get(coin.getId())); // indexing the marker associated with the coin
                     if (!collectedMarkers.contains(m)){
                         assert m != null;
-                        LatLng loc = m.getPosition();
-                        if (collectOK(loc)){
-                            collectButton.setVisibility(View.VISIBLE);
+                        LatLng loc = m.getPosition(); // get the markers location
+                        if (collectOK(loc)){ // if close enough to collect coin
+                            collectButton.setVisibility(View.VISIBLE); // show collection button
                             collectButton.setOnClickListener(v -> {
-                                collectedMarkers.add(m);
-                                map.removeMarker(m);
+                                collectedMarkers.add(m); // adds marker to collected list
+                                map.removeMarker(m); // removes marker from list
 
                                 db.collection("wallet").document(email).collection("collected ("+dateDB +")")
-                                        .add(coin)
+                                        .add(coin) //adds coin to wallet in database
                                         .addOnSuccessListener(documentReference -> {
                                             Log.d(tag, "coin collected with id " + coin.getId());
-                                            collectButton.setVisibility(View.INVISIBLE);
+                                            collectButton.setVisibility(View.INVISIBLE); // hides collection button
                                             Snackbar.make(findViewById(R.id.viewSnack), "Collected " + m.getTitle() + " of  " + m.getSnippet(),Snackbar.LENGTH_SHORT).show();
 
                                         })
@@ -334,17 +333,17 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
 
-        public boolean collectOK(LatLng coin){
-            double UserLat = originLocation.getLatitude();
-            double UserLng = originLocation.getLongitude();
-            double markLat = coin.getLatitude();
-            double marklng = coin.getLongitude();
+        public boolean collectOK(LatLng coin){ // checks if the user is close enough to a marker
+            double UserLat = originLocation.getLatitude(); // current user latitude
+            double UserLng = originLocation.getLongitude(); // current user longitude
+            double markLat = coin.getLatitude(); // marker latitude
+            double marklng = coin.getLongitude(); // marker longitude
+            Log.d(tag, "[collectedOK] distance to marker is " + (distance(UserLat, UserLng, markLat, marklng) ));
+            return (distance(UserLat, UserLng, markLat, marklng) <= radius); // returns true/false for location
 
-            return (distance(UserLat, UserLng, markLat, marklng) <= radius);
-            //Log.d(tag, "[collectedOK] distance to marker is " + (distance(UserLat, UserLng, markLat, marklng) ));
 
         }
-
+        // conversion of lat/lng to metres
         public double distance(double lat1, double lng1, double lat2, double lng2){ //https://stackoverflow.com/questions/837872/calculate-distance-in-meters-when-you-know-longitude-and-latitude-in-java
             double earthRadius = 6371000; //meters
             double dLat = Math.toRadians(lat2-lat1);
@@ -368,6 +367,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         public void onExplanationNeeded(List<String> permissionsToExplain){
             Log.d(tag, "Permissions: " + permissionsToExplain.toString());
             // Present toast or dialog.
+            Snackbar.make(findViewById(R.id.viewSnack), "error: " + permissionsToExplain, Snackbar.LENGTH_LONG);
         }
 
         @Override
@@ -378,6 +378,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             }else{
                 Log.d(tag, "permissions not granted");
                 //add dialog here
+                Snackbar.make(findViewById(R.id.viewSnack), "Permissions must be set", Snackbar.LENGTH_LONG);
             }
         }
 
@@ -407,10 +408,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         @Override
-        protected void onStop(){
+        protected void onStop(){ // players statistics bust be updated when the map is stopped
             super.onStop();
             mapView.onStop();
-            if (collectedCoins.size()!=0){
+            if (collectedCoins.size()!=0){ // for all collected coins
                 Log.d(tag, "onStop" + collectedCoins.size());
                 alreadyWalked = stats.getDistance();
                 Log.d(tag, "[onStop] " + distanceWalked);
@@ -419,7 +420,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                 int collectedQUIDS = 0;
                 int collectedPENYS = 0;
                 int collectedSHILS = 0;
-                for (int i = 0; i < collectedCoins.size(); i++){
+                for (int i = 0; i < collectedCoins.size(); i++){ // count how many of each coin has been collected
                     Coin c = collectedCoins.get(i);
                     assert c!=null;
                     switch (c.getCurrency()){
@@ -437,9 +438,10 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                             break;
                     }
                 }
-
+                Log.d(tag, "[onStop] +" + statsREF);
                 double newDistance = alreadyWalked += distanceWalked;
-                FirebaseFirestore inst = FirebaseFirestore.getInstance();
+                Log.d(tag, "[onStop] +" + newDistance);
+                FirebaseFirestore inst = FirebaseFirestore.getInstance(); // adds the stats to the database
                 inst.collection("user").document(email).collection("STATS").document(statsREF).update("distance", newDistance);
                 inst.collection("user").document(email).collection("STATS").document(statsREF).update("dolrs", collectedDOLRS);
                 inst.collection("user").document(email).collection("STATS").document(statsREF).update("quids", collectedQUIDS);
@@ -458,7 +460,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Log.d(tag, "[onStop] New map, Saving mapData");
                     SharedPreferences settings = getSharedPreferences("mapData", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = settings.edit();
-                    editor.putString(date,mapData);
+                    editor.putString(date,mapData); // saves the map to shared preferences
                     editor.apply();
                 }
             }
@@ -475,7 +477,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         @Override
-        protected void  onDestroy(){
+        protected void  onDestroy(){ // when the map is destroyed the stats must be added to the databse
             super.onDestroy();
             mapView.onDestroy();
             if (collectedCoins.size()!=0){
@@ -538,32 +540,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
             mapView.onSaveInstanceState(outState);
         }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.threebutton, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.threebutton_signout) {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(mapActivity.this, MainActivity.class));
-            finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    protected static int getIcon(final Context cxt){
+    protected static int getIcon(final Context cxt){ // gets the location of the coin icon
         final int ResourceID = cxt.getResources().getIdentifier("coin", "drawable", cxt.getApplicationContext().getPackageName());
         if (ResourceID == 0){
             throw new IllegalArgumentException();
@@ -572,7 +549,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    public void getStats(){
+    public void getStats(){ // pulls player stats from database
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
         CollectionReference cr = rootRef.collection("user").document(email).collection("STATS");
         cr.get().addOnCompleteListener(task -> {
@@ -580,7 +557,7 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                     statsREF = (document.getId());
-                    stats = document.toObject(PlayerStats.class);
+                    stats = document.toObject(PlayerStats.class); // re creates the stats object
                 }
                 assert stats != null;
                 Log.d(tag, "[getStats] " + stats.getDistance());
@@ -591,9 +568,9 @@ public class mapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed(){ // return to tap to play screen
         ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
-        startActivity(new Intent(mapActivity.this, MainActivity.class), options.toBundle());
+        startActivity(new Intent(MapActivity.this, MainActivity.class), options.toBundle());
     }
 
 

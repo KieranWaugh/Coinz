@@ -26,7 +26,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class SignupActivity extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword, reEnterPass, inputName;
-    private Button btnSignIn, btnSignUp, btnResetPassword;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
 
@@ -38,13 +37,12 @@ public class SignupActivity extends AppCompatActivity {
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
 
-        btnSignIn = (Button) findViewById(R.id.sign_in_button);
-        btnSignUp = (Button) findViewById(R.id.sign_up_button);
+        Button btnSignIn = (Button) findViewById(R.id.sign_in_button);
+        Button btnSignUp = (Button) findViewById(R.id.sign_up_button);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         reEnterPass = findViewById(R.id.ReEnterPassword);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
         inputName = findViewById(R.id.name);
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/game_font.ttf");

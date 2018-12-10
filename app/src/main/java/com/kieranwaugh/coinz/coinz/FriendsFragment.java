@@ -29,7 +29,7 @@ import java.util.Objects;
 
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
-
+@SuppressWarnings("all") // suppresses a warning about a super constructor on line 181
 public class FriendsFragment extends android.support.v4.app.Fragment {
     private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(); // Current users email
     private String tag = "FriendsFragment"; // tag for log

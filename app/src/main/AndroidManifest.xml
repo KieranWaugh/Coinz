@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".mapActivity"
+            android:name=".MapActivity"
             android:label="Map"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -55,7 +55,7 @@
             android:label="@string/title_activity_test__player_"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".pic_choice"
+            android:name=".PicChoice"
             android:theme="@style/AppTheme.PopupOverlay" />
         <activity
             android:name=".ShopActivity"

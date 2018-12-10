@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_stats"
+        android:id="@+id/navigation_player"
         android:icon="@drawable/ic_face_white_24dp"
         android:title="Player" />
 

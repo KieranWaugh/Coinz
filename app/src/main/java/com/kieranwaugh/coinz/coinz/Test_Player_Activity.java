@@ -44,12 +44,12 @@ public class Test_Player_Activity extends AppCompatActivity {
         ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){
-                case R.id.navigation_stats:
+                case R.id.navigation_player:
 
                     break;
 
                 case R.id.navigation_map:
-                    Intent intent2 = new Intent(Test_Player_Activity.this, mapActivity.class);
+                    Intent intent2 = new Intent(Test_Player_Activity.this, MapActivity.class);
                     startActivity(intent2, options1.toBundle());
                     break;
 
@@ -101,7 +101,7 @@ public class Test_Player_Activity extends AppCompatActivity {
                         finish();
                         break;
                     case  "Change Profile Picture":
-                        startActivity(new Intent(Test_Player_Activity.this, pic_choice.class));
+                        startActivity(new Intent(Test_Player_Activity.this, PicChoice.class));
                 }
                 return true;
             });
