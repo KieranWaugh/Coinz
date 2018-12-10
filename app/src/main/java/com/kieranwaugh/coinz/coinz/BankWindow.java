@@ -54,6 +54,8 @@ public class BankWindow extends AppCompatActivity {
         goldView.setText(c.getValue()*rate + " GOLD"); // sets the gold value the coin is worth
         FirebaseFirestore db = FirebaseFirestore.getInstance();// init for fireBase firestore
 
+        TextView ratesview = findViewById(R.id.ratesView);
+        ratesview.setText(c.getCurrency() + ": " + rate);
 
         CollectionReference cr = db.collection("user").document(email).collection("INFO"); // getting the players multiplier (if purchased from the shop)
         cr.get().addOnCompleteListener(task -> {

@@ -57,6 +57,7 @@ public class BankActivity extends AppCompatActivity {
     public double QUIDrate; // Daily exchange rate for QUID
     public double PENYrate; // Daily exchange rate for PENY
     public double DOLRrate; // Daily exchange rate for DOLR
+    private  TextView bankedcountview;
     private Spinner spinner; // Drop down menu for coin selection
     private int selectedCoin; // location of the coin selected in the list to allow banking
     private int bankedCount; // total number banked coins that day
@@ -187,10 +188,16 @@ public class BankActivity extends AppCompatActivity {
                        collected.add(c); // adds the coin to the collected arrayList
                    }else{
                        bankedCount +=1; // increment the banked count
+
                    }
                }
+               bankedcountview = findViewById(R.id.dailyBankedView);
+               bankedcountview.setText("Banked: " + bankedCount);
+
                Log.d(tag, "[getCollected] collected coins - " + collected.toString());
                updateSpinnerUI(collected); // use the method updateSpinnerUI to update the spinner menu with each collected coin
+
+
            }
 
        });
