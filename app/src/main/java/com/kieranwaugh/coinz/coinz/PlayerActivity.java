@@ -20,7 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-public class Test_Player_Activity extends AppCompatActivity {
+public class PlayerActivity extends AppCompatActivity {
     FragmentPagerAdapter adapterViewPager;
     private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
     private User user;
@@ -31,9 +31,11 @@ public class Test_Player_Activity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getData();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test__player);
+        getData(); // runs the get data function
+
+        //activity layout and element layouts
+        setContentView(R.layout.activity_player);
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         ViewPager vpPager = findViewById(R.id.vpPager);
         adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
@@ -42,19 +44,19 @@ public class Test_Player_Activity extends AppCompatActivity {
         name = findViewById(R.id.nameView);
 
         ActivityOptions options1 = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> { // creates the bottom navigation bar
             switch (item.getItemId()){
                 case R.id.navigation_player:
 
                     break;
 
                 case R.id.navigation_map:
-                    Intent intent2 = new Intent(Test_Player_Activity.this, MapActivity.class);
+                    Intent intent2 = new Intent(PlayerActivity.this, MapActivity.class);
                     startActivity(intent2, options1.toBundle());
                     break;
 
                 case R.id.navigation_bank:
-                    Intent intent3 = new Intent(Test_Player_Activity.this, BankActivity.class);
+                    Intent intent3 = new Intent(PlayerActivity.this, BankActivity.class);
                     startActivity(intent3, options1.toBundle());
                     break;
             }
@@ -66,9 +68,9 @@ public class Test_Player_Activity extends AppCompatActivity {
         cr.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
 
-                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) { // pulls the players profile picture ID from the databse
                     int id = Integer.parseInt(Objects.requireNonNull(document.get("iconID")).toString());
-                    switch (id) {
+                    switch (id) { // sets the imageview depending on the ID
                         case 2:
                             profilePic.setImageResource(R.mipmap.icon_2_round);
                             break;
@@ -84,33 +86,31 @@ public class Test_Player_Activity extends AppCompatActivity {
                     }
 
                 }
-                //profilePics.remove(1);
-
             }
         });
 
-        profilePic.setOnClickListener(v -> {
-            PopupMenu popup = new PopupMenu(Test_Player_Activity.this, profilePic);
-            popup.getMenuInflater().inflate(R.menu.profile_pic_click, popup.getMenu());
-            popup.setOnMenuItemClickListener(item -> {
+        profilePic.setOnClickListener(v -> { // onclick listener for profile picture
+            PopupMenu popup = new PopupMenu(PlayerActivity.this, profilePic);
+            popup.getMenuInflater().inflate(R.menu.profile_pic_click, popup.getMenu()); // inflates the drop down menu
+            popup.setOnMenuItemClickListener(item -> { // onclick listener for menu item selected
                 String sp = item.getTitle().toString();
                 switch(sp){
                     case "Sign Out":
-                        FirebaseAuth.getInstance().signOut();
-                        startActivity(new Intent(Test_Player_Activity.this, MainActivity.class));
+                        FirebaseAuth.getInstance().signOut(); // signs the user out
+                        startActivity(new Intent(PlayerActivity.this, MainActivity.class));
                         finish();
                         break;
-                    case  "Change Profile Picture":
-                        startActivity(new Intent(Test_Player_Activity.this, PicChoice.class));
+                    case  "Change Profile Picture": // opens the activity to change the users profile  pic
+                        startActivity(new Intent(PlayerActivity.this, PicChoice.class));
                 }
                 return true;
             });
-            popup.show();
+            popup.show(); // show the menu
         });
 
     }
 
-    public void getData(){
+    public void getData(){ // function to pull the players data from the database
 
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
         CollectionReference cr = rootRef.collection("user").document(email).collection("INFO");
@@ -120,7 +120,7 @@ public class Test_Player_Activity extends AppCompatActivity {
                     user = document.toObject(User.class);
                 }
                 assert user != null;
-                name.setText(user.getName());
+                name.setText(user.getName()); // sets the users name to display
                 Log.d(tag, "[getData] " + user.getName());
 
             }
@@ -152,9 +152,9 @@ public class Test_Player_Activity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed(){ // takes the player back to the tap to play screen
         ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
-        startActivity(new Intent(Test_Player_Activity.this, MainActivity.class), options.toBundle());
+        startActivity(new Intent(PlayerActivity.this, MainActivity.class), options.toBundle());
     }
 
 
@@ -163,7 +163,7 @@ public class Test_Player_Activity extends AppCompatActivity {
 
         MyPagerAdapter(FragmentManager fragmentManager) {
             super(fragmentManager);
-        }
+        } // initialises the fragment display
 
         // Returns total number of pages
         @Override
@@ -176,9 +176,9 @@ public class Test_Player_Activity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0: // Fragment # 0 - This will show FirstFragment
-                    return FriendsFragment.newInstance();
+                    return FriendsFragment.newInstance(); // first fragment is friends
                 case 1: // Fragment # 0 - This will show FirstFragment different title
-                    return StatsFragment.newInstance();
+                    return StatsFragment.newInstance(); // second fragment is stats
                 default:
                     return null;
             }

@@ -1,6 +1,7 @@
 package com.kieranwaugh.coinz.coinz;
 
-public class User {
+@SuppressWarnings({"unused", "WeakerAccess"})
+public class User { // user object
 
     private String email;
     private String name;
@@ -13,7 +14,7 @@ public class User {
 
     }
 
-    public User(String email, String name, int iconID, int radius, int multi, double gold){
+    public User(String email, String name, int iconID, int radius, int multi, double gold){ // stores all data needed for a new user of the app
         this.email = email;
         this.name = name;
         this.iconID = iconID;

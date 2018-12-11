@@ -75,7 +75,7 @@ public class BankActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.test_bank_activity);
+        setContentView(R.layout.activity_bank);
         Button bankButton =findViewById(R.id.bankButton); // Button to bank the coin
         bankButton.setOnClickListener(bankClick); // setting the onClick listener to a function bankClick
         Button transferButton = findViewById(R.id.transferButton); // Button to transfer a coin
@@ -102,7 +102,7 @@ public class BankActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){ // gets the menu bar item selection
                 case R.id.navigation_player: // stats activity
-                    Intent intent0 = new Intent(BankActivity.this, Test_Player_Activity.class); // creates the intent
+                    Intent intent0 = new Intent(BankActivity.this, PlayerActivity.class); // creates the intent
                     startActivity(intent0,options.toBundle()); // starts the activity with the animations
                     break;
 

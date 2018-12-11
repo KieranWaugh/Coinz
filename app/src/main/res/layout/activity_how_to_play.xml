@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- scroll view used -->
 <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HowToPlayActivity"
-    android:fillViewport="true">
-
+    android:fillViewport="true"> <!-- allows a scrollable constraint view  -->
+    <!-- nested constraint view-->
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
+        <!-- button to continue to game-->
         <Button
             android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button"
+            android:text="@string/understood"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
+        <!-- coinz logo -->
         <ImageView
             android:id="@+id/imageView6"
             android:layout_width="100dp"
@@ -36,8 +38,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0"
+            android:contentDescription= "@string/todo" />
 
+        <!-- how to play text-->
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"

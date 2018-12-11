@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <!--Layout decries a text box for a dialog box to enter an email-->
+
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

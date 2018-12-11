@@ -30,7 +30,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reset_password_test); // sets layout
+        setContentView(R.layout.activity_reset_password); // sets layout
 
         //finding views
         inputEmail = findViewById(R.id.email);

@@ -25,79 +25,74 @@ import java.util.Locale;
 import java.util.Objects;
 public class TransferWindow extends AppCompatActivity {
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-    private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
-    ArrayList<User> friendList = new ArrayList<>();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance(); // gets database
+    private String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()); // date for the database
+    private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(); // users email
+    ArrayList<User> friendList = new ArrayList<>(); // arraylist of players friends
     private Spinner spinner;
-    private int selectedfriend;
+    private int selectedfriend; // element of menu selected
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // sets activity view
         setContentView(R.layout.activity_transfer_window);
         DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        getWindowManager().getDefaultDisplay().getMetrics(dm); // gets display dimensions
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-        getWindow().setLayout((int) (width * .8), (int) (height * .6));
+        getWindow().setLayout((int) (width * .8), (int) (height * .6)); // sets the activity dimensions
 
 
         Intent intent = getIntent();
-        Coin c = (Coin) intent.getSerializableExtra("coin");
-        String reference = intent.getStringExtra("reference");
+        Coin c = (Coin) intent.getSerializableExtra("coin"); // gets the selected coin
+        String reference = intent.getStringExtra("reference"); // gets the database reference
         TextView curView = findViewById(R.id.currencyConfirm);
-        curView.setText(c.getCurrency() + ": " + c.getValue());
+        curView.setText(c.getCurrency() + ": " + c.getValue()); // sets the confirmation text
         Button transfer = findViewById(R.id.confirmButton);
 
 
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
         CollectionReference cr = rootRef.collection("user").document(email).collection("Friends");
-        cr.get().addOnCompleteListener(task -> {
+        cr.get().addOnCompleteListener(task -> { // pulls friends from the database
             if (task.isSuccessful()) {
 
-                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                    friendList.add((User) document.toObject(User.class));
+                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) { // pulls players friends frm the database
+                    friendList.add(document.toObject(User.class)); // re-creates user object
 
                 }
-                updateSpinnerUI(friendList);
+                updateSpinnerUI(friendList); // updates the spinner
             }
         });
 
-        transfer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        transfer.setOnClickListener(v -> {
 
-                if(selectedfriend != 51){
-                    c.setId(c.getId()+"SENT");
-                    Log.d("transfer", c.getId() + " " + c.getId().length());
-                    db.collection("wallet").document(friendList.get(selectedfriend).getEmail()).collection("collected ("+dateDB +")").add(c);
-                    db.collection("wallet").document(email).collection("collected ("+dateDB +")").document(reference).update("banked", true);
-                    Intent i = new Intent(getApplicationContext(), BankActivity.class);
-                    ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
-                    startActivity(i, options.toBundle());
-                }else{
-
-                }
+            if(selectedfriend != -1){
+                c.setId(c.getId()+"SENT"); // changes the coin ID to notify a sent coin
+                Log.d("transfer", c.getId() + " " + c.getId().length());
+                db.collection("wallet").document(friendList.get(selectedfriend).getEmail()).collection("collected ("+dateDB +")").add(c); // adds the coin to the receiving users wallet
+                db.collection("wallet").document(email).collection("collected ("+dateDB +")").document(reference).update("banked", true); // changes the coin in the current players wallet to banked
+                Intent i = new Intent(getApplicationContext(), BankActivity.class);
+                ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
+                startActivity(i, options.toBundle()); // restarts the bank activity
             }
         });
 
     }
 
     public void updateSpinnerUI(ArrayList<User> friends){
-        String[] drop = new String[friends.size() + 1];
-        drop[0] = "Select Friend:";
+        String[] drop = new String[friends.size() + 1]; // drop down list for spinner
+        drop[0] = "Select Friend:"; // default entry
         for (int i = 0; i < friends.size(); i++){
-            String s  = friends.get(i).getName();
+            String s  = friends.get(i).getName(); // gets the friends name for the list
             drop[i+1] = s;
         }
-        spinner = findViewById(R.id.spinner);
+        spinner = findViewById(R.id.spinner); // spinner layout
         ArrayAdapter<String> adapter = new ArrayAdapter<>(TransferWindow.this,
                 android.R.layout.simple_spinner_item, drop);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        spinner.setAdapter(adapter); // sets the adapter for the spinner
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -108,7 +103,7 @@ public class TransferWindow extends AppCompatActivity {
                     selectedfriend = sp-1;
 
                 }else{
-                    selectedfriend = 51; // not possible ot get 51 coins, hence shows first list item has been selected
+                    selectedfriend = -1; // first item in the list has been selected
                 }
 
             }

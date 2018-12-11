@@ -134,7 +134,7 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
                                     if (newFriend[0] != null) { // player has inputted an email
                                         if (!friendsEmails.contains(newEmail[0])){ // User is not already friends with this email
                                             db.collection("user").document(email).collection("Friends").add(newFriend[0]); // adds user to players friends list
-                                            Intent i = new Intent(getApplicationContext(), Test_Player_Activity.class); // refreshes the activity to update the list from fireBase
+                                            Intent i = new Intent(getApplicationContext(), PlayerActivity.class); // refreshes the activity to update the list from fireBase
                                             ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out); // adds animation to refresh
                                             startActivity(i, options.toBundle()); // starts activity
                                         }else{
@@ -150,7 +150,7 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
 
                                     }
                                 }
-//                                    Intent i = new Intent(getApplicationContext(), Test_Player_Activity.class);
+//                                    Intent i = new Intent(getApplicationContext(), PlayerActivity.class);
 //                                    ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out);
 //                                    startActivity(i, options.toBundle());
 //                                    FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -184,7 +184,7 @@ public class FriendsFragment extends android.support.v4.app.Fragment {
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            View v=((Activity)getContext()).getLayoutInflater().inflate(R.layout.friend_layoyt,null); // sets the layout for each list item
+            View v=((Activity)getContext()).getLayoutInflater().inflate(R.layout.friend_layout,null); // sets the layout for each list item
             TextView txt1 = v.findViewById(R.id.textViewpasslay); // text layout
             txt1.setText(names[position]); // sets the text from the friends array populated in onCreate
             ImageView img = v.findViewById(R.id.imageViewpasslay); // image layout (profile pic)

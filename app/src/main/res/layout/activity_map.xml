@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-
+<!-- constraint layout used -->
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,7 +11,7 @@
     android:layout_height="match_parent"
     tools:context=".MapActivity">
 
-
+    <!-- location and dimensions of bottom nav bar -->
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="0dp"
@@ -29,6 +29,7 @@
 
     </android.support.design.widget.BottomNavigationView>
 
+    <!-- map layout -->
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapboxMapView"
         android:layout_width="wrap_content"
@@ -45,6 +46,7 @@
 
     </com.mapbox.mapboxsdk.maps.MapView>
 
+    <!-- snackbar location above nav bar -->
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/viewSnack"
         android:layout_width="match_parent"
@@ -62,6 +64,7 @@
 
     </android.support.design.widget.CoordinatorLayout>
 
+    <!-- button to collect coin -->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton2"
         android:layout_width="55dp"
@@ -83,7 +86,7 @@
         app:layout_constraintVertical_bias="0.85"
         app:rippleColor="@color/common_google_signin_btn_text_dark_default"
         />
-
+    <!-- button to enter shop -->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton3"
         android:layout_width="55dp"

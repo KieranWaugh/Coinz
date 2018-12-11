@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         if (FromFile.contains(date)) { // if the tag for today exists then the map is already downloaded
             Log.d(tag, "[onCreate] Taking map data from file, moving on");
         } else {
-            DownloadFileTask df = new DownloadFileTask(); // init for map download Async task
-            df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson"); // starts the download
+//            DownloadFileTask df = new DownloadFileTask(); // init for map download Async task
+//            df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson"); // starts the download
             Log.d(tag, "[onCreate] Taking map data from server");
         }
 

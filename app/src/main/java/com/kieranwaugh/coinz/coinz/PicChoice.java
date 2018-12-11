@@ -49,7 +49,7 @@ public class PicChoice extends AppCompatActivity {
                 Log.d("pic", "id is " + ref[0]);
                 db.collection("user").document(email).collection("INFO").document(ref[0]).update("iconID", 2);
 
-                Intent refresh = new Intent(PicChoice.this, Test_Player_Activity.class);
+                Intent refresh = new Intent(PicChoice.this, PlayerActivity.class);
                 ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.nothing);
                 startActivity(refresh, options.toBundle());
 
@@ -68,7 +68,7 @@ public class PicChoice extends AppCompatActivity {
                 }
                 db.collection("user").document(email).collection("INFO").document(ref[0]).update("iconID", 3);
 
-                Intent refresh = new Intent(PicChoice.this, Test_Player_Activity.class);
+                Intent refresh = new Intent(PicChoice.this, PlayerActivity.class);
                 ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.nothing);
                 startActivity(refresh, options.toBundle());
 
@@ -87,7 +87,7 @@ public class PicChoice extends AppCompatActivity {
                 }
                 db.collection("user").document(email).collection("INFO").document(ref[0]).update("iconID", 4);
 
-                Intent refresh = new Intent(PicChoice.this, Test_Player_Activity.class);
+                Intent refresh = new Intent(PicChoice.this, PlayerActivity.class);
                 ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.nothing);
                 startActivity(refresh, options.toBundle());
 

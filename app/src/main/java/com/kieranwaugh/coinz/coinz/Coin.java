@@ -4,6 +4,7 @@ package com.kieranwaugh.coinz.coinz;
 import android.util.Log;
 import java.io.Serializable;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 
 public class Coin implements Serializable { // coin object implement serializable to allow for Intent.putExtra()
 

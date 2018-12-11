@@ -1,13 +1,8 @@
 package com.kieranwaugh.coinz.coinz;
 
-public class DownloadCompleteRunner {
+public interface DownloadCompleteRunner {
 
-    static String result;
-
-    public static void downloadComplete(String result){
-        DownloadCompleteRunner.result = result;
-
-    }
+    void processFinish(String output);
 }
 
 

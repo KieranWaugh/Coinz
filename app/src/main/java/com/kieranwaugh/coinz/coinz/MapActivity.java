@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -100,7 +102,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             bottomNavigationView.setOnNavigationItemSelectedListener(item -> { // listener for icon selected on the bar
                 switch (item.getItemId()){
                     case R.id.navigation_player:
-                        Intent intent1 = new Intent(MapActivity.this, Test_Player_Activity.class); // if player is selected
+                        Intent intent1 = new Intent(MapActivity.this, PlayerActivity.class); // if player is selected
                         intent1.putExtra("stats", stats);
                         startActivity(intent1,options.toBundle()); // start player activity
                         break;
@@ -136,10 +138,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
         });
 
+        ConnectivityManager cm =
+                (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        assert cm != null;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if (!isConnected){
+            Snackbar.make(findViewById(R.id.viewSnack), " No Internet Connection",Snackbar.LENGTH_SHORT).show();
+            Intent i = new Intent(this, MainActivity.class);
+            startActivity(i);
         }
+    }
 
         @Override
         public void onMapReady(MapboxMap mapboxMap) {
+
             Log.d(tag, "[onMapReady] " + collected.toString());
             SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE); // // initialises devices shared preferences
             if (FromFile.contains(date)){ // searches shared preferences for a file with the date as the tag
@@ -148,66 +164,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d(tag, mapData);
             }else {
                 Log.d(tag, "[onMapReady] problem finding map data, taking from server");
-                mapData = DownloadCompleteRunner.result; // else the map must be downloaded
+                DownloadFileTask df = new DownloadFileTask(); // init for map download Async task
+                df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson"); // starts the download
+                df.onPostExecute(mapData = DownloadCompleteRunner.result);
+                addMarkers(map);
+                 // else the map must be downloaded
             }
             if (mapboxMap == null) { // map must not be null
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
 
-                map = mapboxMap;
-                IconFactory iconF = IconFactory.getInstance(this);
-                Icon ic =  iconF.fromResource(R.drawable.shopping_logo); // create a marker icon of the shop logo
-                MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop").icon(ic); // sets title
-                shop = mapboxMap.addMarker(mo); // adds the shop to the map
-
-                FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-                CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
-                cr.get().addOnCompleteListener(task -> { // pulling the players wallet from the database
-                    if (task.isSuccessful()) {
-
-                        for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                            Coin c = document.toObject(Coin.class);
-                            assert c != null;
-                            collected.add(c.getId()); // adds the coin id to the collected arraylist
-                            collectedCoins.add(c); // adds the coin to the arraylist
-
-                        }
-                    }
-
-                    List<Feature> features = FeatureCollection.fromJson(mapData).features(); // creates a feature collection for each marker in the JSON string
-                    enableLocation();
-                    assert features != null;
-                    for (int i = 0; i < features.size(); i++){
-                        try {
-                            // extracting the data from the json string for each element of the feature collection.
-                            JSONObject jsonObject = new JSONObject(features.get(i).toJson());
-                            JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
-                            double lng = Double.parseDouble(coordinates.get(0).toString());
-                            double lat = Double.parseDouble(coordinates.get(1).toString());
-                            String id = jsonObject.getJSONObject("properties").getString("id");
-                            double value = jsonObject.getJSONObject("properties").getDouble("value");
-                            String strValue = String.valueOf(value);
-                            String currency = jsonObject.getJSONObject("properties").getString("currency");
-
-                            if (!collected.contains(id)){ // only add the marker if it has not been collected already
-                                Context cxt = getApplicationContext();
-                                int iconInt = getIcon(cxt);
-                                IconFactory iconFactory = IconFactory.getInstance(this); //creates the icon for the marker (coin icon)
-                                Icon icon =  iconFactory.fromResource(iconInt);
-                                MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon); // creates the marker with its location, title and snippet
-                                Marker m = mapboxMap.addMarker(mk); // adds the marker to the map
-                                Coin coin = new Coin(id, value, currency, lng,lat,false); // creates a coin object with the values from the json string and sets banked to false
-                                coinsList.add(coin); // adds the coi to the list
-                                markers.put(id, m); // adds the marker to the list
-                            }else{
-                                continue; // if the coin is already collected, skip and move the next element of the feature collection
-                            }
-                            Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
             }
 
         }
@@ -329,6 +295,67 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
 
             }
+
+        }
+
+        public void addMarkers(MapboxMap mapboxMap){
+            enableLocation();
+            map = mapboxMap;
+            IconFactory iconF = IconFactory.getInstance(this);
+            Icon ic =  iconF.fromResource(R.drawable.shopping_logo); // create a marker icon of the shop logo
+            MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop").icon(ic); // sets title
+            shop = mapboxMap.addMarker(mo); // adds the shop to the map
+
+            FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+            CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
+            cr.get().addOnCompleteListener(task -> { // pulling the players wallet from the database
+                if (task.isSuccessful()) {
+
+                    for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                        Coin c = document.toObject(Coin.class);
+                        assert c != null;
+                        collected.add(c.getId()); // adds the coin id to the collected arraylist
+                        collectedCoins.add(c); // adds the coin to the arraylist
+
+                    }
+                }
+                if (mapData == null){
+                    onMapReady(mapboxMap);
+                }
+                System.out.println(mapData);
+                List<Feature> features = FeatureCollection.fromJson(mapData).features(); // creates a feature collection for each marker in the JSON string
+                assert features != null;
+                for (int i = 0; i < features.size(); i++){
+                    try {
+                        // extracting the data from the json string for each element of the feature collection.
+                        JSONObject jsonObject = new JSONObject(features.get(i).toJson());
+                        JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
+                        double lng = Double.parseDouble(coordinates.get(0).toString());
+                        double lat = Double.parseDouble(coordinates.get(1).toString());
+                        String id = jsonObject.getJSONObject("properties").getString("id");
+                        double value = jsonObject.getJSONObject("properties").getDouble("value");
+                        String strValue = String.valueOf(value);
+                        String currency = jsonObject.getJSONObject("properties").getString("currency");
+
+                        if (!collected.contains(id)){ // only add the marker if it has not been collected already
+                            Context cxt = getApplicationContext();
+                            int iconInt = getIcon(cxt);
+                            IconFactory iconFactory = IconFactory.getInstance(this); //creates the icon for the marker (coin icon)
+                            Icon icon =  iconFactory.fromResource(iconInt);
+                            MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon); // creates the marker with its location, title and snippet
+                            Marker m = mapboxMap.addMarker(mk); // adds the marker to the map
+                            Coin coin = new Coin(id, value, currency, lng,lat,false); // creates a coin object with the values from the json string and sets banked to false
+                            coinsList.add(coin); // adds the coi to the list
+                            markers.put(id, m); // adds the marker to the list
+                        }else{
+                            continue; // if the coin is already collected, skip and move the next element of the feature collection
+                        }
+                        Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
         }
 
