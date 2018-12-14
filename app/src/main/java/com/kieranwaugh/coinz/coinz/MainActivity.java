@@ -1,15 +1,16 @@
 package com.kieranwaugh.coinz.coinz;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
-import android.content.Context;
+
 import android.content.Intent;
-import android.content.SharedPreferences;
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date()); // Daily date for map download on informatics server
     private FirebaseAuth auth; // fireBase authentication
     private TextView tap; // text view prompting user to tap screen to begin
-    String tag = "MainActivity"; // log cat tag
 
 
 
@@ -46,15 +46,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance(); // gets fireBase authentication, null if no user is logged in
 
-        Log.d(tag, "[onCreate] The date is " + date + " fetching map");
-        SharedPreferences FromFile = getSharedPreferences("mapData", Context.MODE_PRIVATE); // gets shared preferences
-        if (FromFile.contains(date)) { // if the tag for today exists then the map is already downloaded
-            Log.d(tag, "[onCreate] Taking map data from file, moving on");
-        } else {
-//            DownloadFileTask df = new DownloadFileTask(); // init for map download Async task
-//            df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson"); // starts the download
-            Log.d(tag, "[onCreate] Taking map data from server");
-        }
 
         setContentView(R.layout.activity_main);
 
@@ -98,10 +89,12 @@ public class MainActivity extends AppCompatActivity {
                 } else { // user is not logged in
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);// creates animation for activity change
                     //ActivityOptions options = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.fade_in, R.anim.fade_out); // starts the login activity
-                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, findViewById(R.id.coinLogo), "transition");
+                    @SuppressLint("CutPasteId") ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, findViewById(R.id.coinLogo), "transition");
                     startActivity(intent, options.toBundle());
                 }
         });
+
+
     }
 
     @Override
@@ -125,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    @SuppressLint("SetTextI18n")
     public void setProgressDialog() { // Spinner to display user login progress, keeps the ui active while authentication is being received.
         // https://stackoverflow.com/questions/51862117/how-can-i-center-the-title-in-a-progressdialog-android
         int llPadding = 30;

@@ -102,6 +102,10 @@ public class PlayerActivity extends AppCompatActivity {
                         break;
                     case  "Change Profile Picture": // opens the activity to change the users profile  pic
                         startActivity(new Intent(PlayerActivity.this, PicChoice.class));
+                        break;
+                    case "How to Play":
+                        startActivity(new Intent(getApplicationContext(), HowToPlayActivity.class));
+                        break;
                 }
                 return true;
             });

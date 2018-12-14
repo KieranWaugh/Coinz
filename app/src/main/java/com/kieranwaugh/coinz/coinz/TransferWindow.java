@@ -68,8 +68,9 @@ public class TransferWindow extends AppCompatActivity {
         transfer.setOnClickListener(v -> {
 
             if(selectedfriend != -1){
-                c.setId(c.getId()+"SENT"); // changes the coin ID to notify a sent coin
+                c.setId(c.getId()+ email); // changes the coin ID to notify a sent coin
                 Log.d("transfer", c.getId() + " " + c.getId().length());
+                Log.d("transfer", reference);
                 db.collection("wallet").document(friendList.get(selectedfriend).getEmail()).collection("collected ("+dateDB +")").add(c); // adds the coin to the receiving users wallet
                 db.collection("wallet").document(email).collection("collected ("+dateDB +")").document(reference).update("banked", true); // changes the coin in the current players wallet to banked
                 Intent i = new Intent(getApplicationContext(), BankActivity.class);

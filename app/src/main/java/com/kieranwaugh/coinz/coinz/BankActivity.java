@@ -60,7 +60,7 @@ public class BankActivity extends AppCompatActivity {
     private  TextView bankedcountview;
     private Spinner spinner; // Drop down menu for coin selection
     private int selectedCoin; // location of the coin selected in the list to allow banking
-    private int bankedCount; // total number banked coins that day
+    private int bankedCount = 25; // total number banked coins that day
     public ArrayList<Coin> collected = new ArrayList<>(); // all coins collected by the player that day
     private LinkedHashMap<String, Coin> collectedMap = new LinkedHashMap<>(); // Hashmap with the object reference id as the Key and a related coin.
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date()); // date for shared preferences
@@ -211,7 +211,7 @@ public class BankActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Log.d(tag, "[onClick] bank clicked");
-            if (bankedCount > 25){  //  Cannot bank more than 25 coins per day as per specification
+            if (bankedCount >= 25){  //  Cannot bank more than 25 coins per day as per specification
                 if (selectedCoin !=-1){ // -1 is the value for the default "select coin" menu item
                     Log.d(tag, "[onClick] banked 25 coins");
                     Snackbar.make(findViewById(R.id.viewSnack), "You have already banked 25 coins today!, transfer your spare change.", Snackbar.LENGTH_LONG).show(); //  displays not allowed to player
@@ -288,7 +288,7 @@ public class BankActivity extends AppCompatActivity {
                                 break;
                         }
 
-
+                        transferPopup.putExtra("reference", reference); // adds the objects reference to the intent to allow for value update in fireBase
                         transferPopup.putExtra("coin", c); // adds the coin to the intent
                         startActivity(transferPopup);
                         }

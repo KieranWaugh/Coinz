@@ -5,6 +5,7 @@ import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -17,6 +18,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -55,27 +58,27 @@ import java.util.Locale;
 import java.util.Objects;
 
 @IgnoreExtraProperties
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener, DownloadCompleteRunner {
 
-
+    DownloadFileTask DF = new DownloadFileTask();
     private String tag = "MapActivity"; // tag for logcat
     private MapView mapView; // variable to for map
     private MapboxMap map; // map from mapbox
     private LocationEngine locationEngine; // user location
     private Location originLocation; // current user location
     private Location previousLocation; // previous location of the player
-    public String mapData; // JSON string of map data from the informatics server
+    private String mapData; // JSON string of map data from the informatics server
     private double distanceWalked; // distance walked by the player during the life of this activity
     private FloatingActionButton collectButton; // button to collect coins
     private FloatingActionButton shopButton; // button to open shop
     private final String savedMapData = "mapData";
     private String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date()); // date to access the daily map
     private String dateDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()); // date for databsae tree
-    public List<Coin> coinsList = new ArrayList<>(); // list of the coins on the map
-    public HashMap<String, Marker> markers= new HashMap<>(); // coin id with a associated marker on the map.
-    public ArrayList<Marker> collectedMarkers = new ArrayList<>(); // markers that have been removed from the map
-    public ArrayList<String> collected = new ArrayList<>(); // ID of collected coins
-    public ArrayList<Coin> collectedCoins = new ArrayList<>(); // list of the collected coins
+    private List<Coin> coinsList = new ArrayList<>(); // list of the coins on the map
+    private HashMap<String, Marker> markers= new HashMap<>(); // coin id with a associated marker on the map.
+    private ArrayList<Marker> collectedMarkers = new ArrayList<>(); // markers that have been removed from the map
+    private ArrayList<String> collected = new ArrayList<>(); // ID of collected coins
+    private ArrayList<Coin> collectedCoins = new ArrayList<>(); // list of the collected coins
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // firebase firestore initialisation to the root of the database tree
     private String email = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(); // email address of authenticated user
     private String statsREF; // reference for the stats leaf in the database
@@ -84,6 +87,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private int radius; // current collection radius for coin collection ( default of 25) in metres
     private int multiplyer; // multiplier for coin value (default of 1)
     private double alreadyWalked; // distance already walked by the player in metres
+    private List<Feature> features; // feature collection
 
 
 
@@ -91,6 +95,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
             getStats(); // runs function to get the users statistics
             Mapbox.getInstance(this, getString(R.string.access_token)); // assigns the key to this instance of mapbox map
             setContentView(R.layout.activity_map); // sets the activity layout
@@ -138,6 +143,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
         });
 
+        SharedPreferences FromFile = getSharedPreferences("mapData", Context.MODE_PRIVATE);
+        if (FromFile.contains(date)) {
+            Log.d(tag, "[onMapReady] Taking map data from file, moving on");
+            mapData = FromFile.getString(date, "");
+        }
+
         ConnectivityManager cm =
                 (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -147,33 +158,38 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 activeNetwork.isConnectedOrConnecting();
 
         if (!isConnected){
-            Snackbar.make(findViewById(R.id.viewSnack), " No Internet Connection",Snackbar.LENGTH_SHORT).show();
-            Intent i = new Intent(this, MainActivity.class);
-            startActivity(i);
+            Snackbar snackbar = Snackbar
+                    .make(findViewById(R.id.viewSnack), "No Internet Connection.", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("TRY AGAIN", view -> {
+                        Intent i = new Intent(getApplicationContext(), MapActivity.class);
+                        startActivity(i);
+                    });
+            snackbar.setActionTextColor(Color.RED);
+            View sbView = snackbar.getView();
+            TextView textView = sbView.findViewById(android.support.design.R.id.snackbar_text);
+            textView.setTextColor(Color.WHITE);
+            snackbar.show();
         }
+
     }
+
 
         @Override
         public void onMapReady(MapboxMap mapboxMap) {
 
-            Log.d(tag, "[onMapReady] " + collected.toString());
-            SharedPreferences FromFile = getSharedPreferences(savedMapData, Context.MODE_PRIVATE); // // initialises devices shared preferences
-            if (FromFile.contains(date)){ // searches shared preferences for a file with the date as the tag
-                mapData = FromFile.getString(date, ""); // if found, the map is already downloaded today and can be pulled
-                Log.d(tag, "[onMapReady] map data taken from file");
-                Log.d(tag, mapData);
-            }else {
-                Log.d(tag, "[onMapReady] problem finding map data, taking from server");
-                DownloadFileTask df = new DownloadFileTask(); // init for map download Async task
-                df.execute("http://homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson"); // starts the download
-                df.onPostExecute(mapData = DownloadCompleteRunner.result);
-                addMarkers(map);
-                 // else the map must be downloaded
-            }
+
+
             if (mapboxMap == null) { // map must not be null
                 Log.d(tag, "[onMapReady] mapBox is null");
             }else{
-
+                map = mapboxMap;
+                if (mapData == null || mapData.equals("")) {
+                    DF.delegate = this;
+                    DF.execute("http://homepages.inf.ed.ac.uk/stg/coinz/" + date + "/coinzmap.geojson"); // starts map download
+                    Log.d(tag, "[onMapReady] Taking map data from server");
+                }else{
+                    addMarkers(mapData);
+                }
             }
 
         }
@@ -233,6 +249,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         @Override
         public void onLocationChanged(Location location) { // when the players loatoin has changed
+            collectButton.setVisibility(View.INVISIBLE);
             if (location == null) {
                 Log.d(tag, "[onLocationChanged] location is null");
 
@@ -290,6 +307,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             });
 
                         }
+
                     }
 
                 }
@@ -298,65 +316,77 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         }
 
-        public void addMarkers(MapboxMap mapboxMap){
-            enableLocation();
-            map = mapboxMap;
-            IconFactory iconF = IconFactory.getInstance(this);
-            Icon ic =  iconF.fromResource(R.drawable.shopping_logo); // create a marker icon of the shop logo
-            MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop").icon(ic); // sets title
-            shop = mapboxMap.addMarker(mo); // adds the shop to the map
+        public void addMarkers(String data) { // adds markers to map
+                System.out.println("[addMarkers] " + data);
 
-            FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-            CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected ("+dateDB +")");
-            cr.get().addOnCompleteListener(task -> { // pulling the players wallet from the database
-                if (task.isSuccessful()) {
+                IconFactory iconF = IconFactory.getInstance(this);
+                Icon ic = iconF.fromResource(R.drawable.shopping_logo); // create a marker icon of the shop logo
+                MarkerOptions mo = new MarkerOptions().position(new LatLng(55.943654, -3.188825)).title("Shop").icon(ic); // sets title
+                shop = map.addMarker(mo); // adds the shop to the map
 
-                    for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                        Coin c = document.toObject(Coin.class);
-                        assert c != null;
-                        collected.add(c.getId()); // adds the coin id to the collected arraylist
-                        collectedCoins.add(c); // adds the coin to the arraylist
+                FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+                CollectionReference cr = rootRef.collection("wallet").document(email).collection("collected (" + dateDB + ")");
+                cr.get().addOnCompleteListener(task -> { // pulling the players wallet from the database
+                    if (task.isSuccessful()) {
 
-                    }
-                }
-                if (mapData == null){
-                    onMapReady(mapboxMap);
-                }
-                System.out.println(mapData);
-                List<Feature> features = FeatureCollection.fromJson(mapData).features(); // creates a feature collection for each marker in the JSON string
-                assert features != null;
-                for (int i = 0; i < features.size(); i++){
-                    try {
-                        // extracting the data from the json string for each element of the feature collection.
-                        JSONObject jsonObject = new JSONObject(features.get(i).toJson());
-                        JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
-                        double lng = Double.parseDouble(coordinates.get(0).toString());
-                        double lat = Double.parseDouble(coordinates.get(1).toString());
-                        String id = jsonObject.getJSONObject("properties").getString("id");
-                        double value = jsonObject.getJSONObject("properties").getDouble("value");
-                        String strValue = String.valueOf(value);
-                        String currency = jsonObject.getJSONObject("properties").getString("currency");
+                        for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            Coin c = document.toObject(Coin.class);
+                            assert c != null;
+                            collected.add(c.getId()); // adds the coin id to the collected arraylist
+                            collectedCoins.add(c); // adds the coin to the arraylist
 
-                        if (!collected.contains(id)){ // only add the marker if it has not been collected already
-                            Context cxt = getApplicationContext();
-                            int iconInt = getIcon(cxt);
-                            IconFactory iconFactory = IconFactory.getInstance(this); //creates the icon for the marker (coin icon)
-                            Icon icon =  iconFactory.fromResource(iconInt);
-                            MarkerOptions mk = new MarkerOptions().position(new LatLng(lat,lng)).title(currency).setSnippet("Value: " + strValue).icon(icon); // creates the marker with its location, title and snippet
-                            Marker m = mapboxMap.addMarker(mk); // adds the marker to the map
-                            Coin coin = new Coin(id, value, currency, lng,lat,false); // creates a coin object with the values from the json string and sets banked to false
-                            coinsList.add(coin); // adds the coi to the list
-                            markers.put(id, m); // adds the marker to the list
-                        }else{
-                            continue; // if the coin is already collected, skip and move the next element of the feature collection
                         }
-                        Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-                }
-            });
+                    try{
+                        features = FeatureCollection.fromJson(data).features(); // creates a feature collection for each marker in the JSON string
+                        assert features != null;
+                        for (int i = 0; i < features.size(); i++) {
+                            try {
+                                // extracting the data from the json string for each element of the feature collection.
+                                JSONObject jsonObject = new JSONObject(features.get(i).toJson());
+                                JSONArray coordinates = jsonObject.getJSONObject("geometry").getJSONArray("coordinates");
+                                double lng = Double.parseDouble(coordinates.get(0).toString());
+                                double lat = Double.parseDouble(coordinates.get(1).toString());
+                                String id = jsonObject.getJSONObject("properties").getString("id");
+                                double value = jsonObject.getJSONObject("properties").getDouble("value");
+                                String strValue = String.valueOf(value);
+                                String currency = jsonObject.getJSONObject("properties").getString("currency");
 
+                                if (!collected.contains(id)) { // only add the marker if it has not been collected already
+                                    Context cxt = getApplicationContext();
+                                    int iconInt = getIcon(cxt);
+                                    IconFactory iconFactory = IconFactory.getInstance(this); //creates the icon for the marker (coin icon)
+                                    Icon icon = iconFactory.fromResource(iconInt);
+                                    MarkerOptions mk = new MarkerOptions().position(new LatLng(lat, lng)).title(currency).setSnippet("Value: " + strValue).icon(icon); // creates the marker with its location, title and snippet
+                                    Marker m = map.addMarker(mk); // adds the marker to the map
+                                    Coin coin = new Coin(id, value, currency, lng, lat, false); // creates a coin object with the values from the json string and sets banked to false
+                                    coinsList.add(coin); // adds the coi to the list
+                                    markers.put(id, m); // adds the marker to the list
+                                } else {
+                                    continue; // if the coin is already collected, skip and move the next element of the feature collection
+                                }
+                                Log.d(tag, "[onMapReady] adding marker " + i + " to the map");
+                            } catch (JSONException e) {
+                                System.out.println(e);
+                            }
+                        }
+                    }catch(Exception e){ // catches download exception
+                        Snackbar snackbar = Snackbar
+                                .make(findViewById(R.id.viewSnack), "Connection Time Out.", Snackbar.LENGTH_INDEFINITE)
+                                .setAction("TRY AGAIN", view -> {
+                                    Intent i = new Intent(getApplicationContext(), MapActivity.class);
+                                    startActivity(i); // asks user to try download again and restarts activity
+                                });
+                        snackbar.setActionTextColor(Color.RED);
+                        View sbView = snackbar.getView();
+                        TextView textView = sbView.findViewById(android.support.design.R.id.snackbar_text);
+                        textView.setTextColor(Color.WHITE);
+                        snackbar.show();
+                    }
+
+                });
+
+            enableLocation();
         }
 
 
@@ -598,6 +628,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onBackPressed(){ // return to tap to play screen
         ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.bottom_down, R.anim.nothing);
         startActivity(new Intent(MapActivity.this, MainActivity.class), options.toBundle());
+    }
+
+    @Override
+    public void processFinish(String output){
+        //Here you will receive the result fired from async class
+        //of onPostExecute(result) method.
+        System.out.println(output);
+        mapData = output;
+        addMarkers(mapData);
+
     }
 
 

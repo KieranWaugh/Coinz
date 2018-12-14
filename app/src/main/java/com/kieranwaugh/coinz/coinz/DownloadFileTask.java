@@ -9,8 +9,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class DownloadFileTask extends AsyncTask<String, Void, String> {
-
+    public DownloadCompleteRunner delegate = null;
     private String tag = "DownloadFileTask";
+
+
 
     @Override
     protected String doInBackground(String... urls) {
@@ -48,8 +50,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        super.onPostExecute(result);
-        DownloadCompleteRunner.downloadComplete(result);
+        delegate.processFinish(result);
 
 
     }
