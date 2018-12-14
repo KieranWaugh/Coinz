@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_stats"
+        android:id="@+id/navigation_player"
         android:icon="@drawable/ic_face_white_24dp"
-        android:title="Player" />
+        android:title="@string/player" />
 
     <item
         android:id="@+id/navigation_map"
         android:icon="@drawable/ic_map_white_24dp"
-        android:title="Map" />
+        android:title="@string/map" />
 
     <item
         android:id="@+id/navigation_bank"
         android:icon="@drawable/ic_account_balance_white_24dp"
-        android:title="Bank" />
+        android:title="@string/bank" />
 
 </menu>

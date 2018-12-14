@@ -4,22 +4,23 @@ package com.kieranwaugh.coinz.coinz;
 import android.util.Log;
 import java.io.Serializable;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 
-public class coin implements Serializable { // coin object implement serializable to allow for Intent.putExtra()
+public class Coin implements Serializable { // coin object implement serializable to allow for Intent.putExtra()
 
-    private String id;
+    private String id; //
     private double value;
     private String currency;
     private double lng;
     private double lat;
     private boolean banked;
 
-    public coin(){
+    public Coin(){ // allows for firestore to re create the object
 
     }
 
 
-    public coin(String id, double value, String currency, double lng, double lat, boolean banked ){
+    public Coin(String id, double value, String currency, double lng, double lat, boolean banked ){
         this.id = id;
         this.value = value;
         this.currency = currency;
@@ -30,11 +31,11 @@ public class coin implements Serializable { // coin object implement serializabl
         Log.d("Coin", "[coin] Created coin with id " + id);
     }
 
+    // Firestore requires all getters to function.
+
     public String getId() {
         return id;
     }
-
-
 
     public double getValue() {
         return value;

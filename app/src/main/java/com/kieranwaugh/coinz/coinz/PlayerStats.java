@@ -1,9 +1,9 @@
 package com.kieranwaugh.coinz.coinz;
 
 import java.io.Serializable;
-import java.sql.Time;
 
-public class PlayerStats implements Serializable{
+@SuppressWarnings({"unused", "WeakerAccess"})
+public class PlayerStats implements Serializable{ // object for the players statistics implement serializable to allow for Intent.putExtra()
 
     private double distance;
     private int quids;
@@ -33,7 +33,7 @@ public class PlayerStats implements Serializable{
     private int penys;
     //private Time time;
 
-    public PlayerStats(){
+    public PlayerStats(){ // allows for firestore to re-create the object
 
     }
 

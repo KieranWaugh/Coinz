@@ -57,11 +57,12 @@ public class BankActivity extends AppCompatActivity {
     public double QUIDrate; // Daily exchange rate for QUID
     public double PENYrate; // Daily exchange rate for PENY
     public double DOLRrate; // Daily exchange rate for DOLR
+    private  TextView bankedcountview;
     private Spinner spinner; // Drop down menu for coin selection
     private int selectedCoin; // location of the coin selected in the list to allow banking
-    private int bankedCount; // total number banked coins that day
-    public ArrayList<coin> collected = new ArrayList<>(); // all coins collected by the player that day
-    private LinkedHashMap<String, coin> collectedMap = new LinkedHashMap<>(); // Hashmap with the object reference id as the Key and a related coin.
+    private int bankedCount = 25; // total number banked coins that day
+    public ArrayList<Coin> collected = new ArrayList<>(); // all coins collected by the player that day
+    private LinkedHashMap<String, Coin> collectedMap = new LinkedHashMap<>(); // Hashmap with the object reference id as the Key and a related coin.
     String date = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date()); // date for shared preferences
     String tag = "BankActivity"; // Log tag
     private double goldBal; // Players gold balance
@@ -74,7 +75,7 @@ public class BankActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.test_bank_activity);
+        setContentView(R.layout.activity_bank);
         Button bankButton =findViewById(R.id.bankButton); // Button to bank the coin
         bankButton.setOnClickListener(bankClick); // setting the onClick listener to a function bankClick
         Button transferButton = findViewById(R.id.transferButton); // Button to transfer a coin
@@ -100,13 +101,13 @@ public class BankActivity extends AppCompatActivity {
         ActivityOptions options = ActivityOptions.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out); // creates the animation for the activity start
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()){ // gets the menu bar item selection
-                case R.id.navigation_stats: // stats activity
-                    Intent intent0 = new Intent(BankActivity.this, Test_Player_Activity.class); // creates the intent
+                case R.id.navigation_player: // stats activity
+                    Intent intent0 = new Intent(BankActivity.this, PlayerActivity.class); // creates the intent
                     startActivity(intent0,options.toBundle()); // starts the activity with the animations
                     break;
 
                 case R.id.navigation_map: // map activity
-                    Intent intent1 = new Intent(BankActivity.this, mapActivity.class);
+                    Intent intent1 = new Intent(BankActivity.this, MapActivity.class);
                     startActivity(intent1, options.toBundle());
                     break;
 
@@ -128,7 +129,7 @@ public class BankActivity extends AppCompatActivity {
         try {
             Log.d(tag, "[onCreate] getting exchange rates");
             JSONObject json = new JSONObject(mapData); // creates a json object from the mapData downloaded from the informatics server
-            SHILLrate = json.getJSONObject("rates").getDouble("SHIL"); // sets the SHILLrate
+            SHILLrate = json.getJSONObject("rates").getDouble("SHIL"); // sets the SHILrate
             Log.d(tag, "[getRates] SHIL rate " + SHILLrate);
             QUIDrate = json.getJSONObject("rates").getDouble("QUID"); // sets the QUIDrate
             Log.d(tag, "[getRates] QUID rate " + QUIDrate);
@@ -180,17 +181,23 @@ public class BankActivity extends AppCompatActivity {
            if (task.isSuccessful()) {
                for (DocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                    String ref = (document.getId()); // gets the objects reference to allow update later
-                   coin c = document.toObject(coin.class); // re-creates the coin object from firestore
+                   Coin c = document.toObject(Coin.class); // re-creates the coin object from firestore
                    assert c != null;
                    if (!c.isBanked()){ // if the coin is not marked as banked
                        collectedMap.put(ref, c); //  adds the object reference and the coin to teh hashMap
                        collected.add(c); // adds the coin to the collected arrayList
                    }else{
                        bankedCount +=1; // increment the banked count
+
                    }
                }
+               bankedcountview = findViewById(R.id.dailyBankedView);
+               bankedcountview.setText("Banked: " + bankedCount);
+
                Log.d(tag, "[getCollected] collected coins - " + collected.toString());
                updateSpinnerUI(collected); // use the method updateSpinnerUI to update the spinner menu with each collected coin
+
+
            }
 
        });
@@ -204,7 +211,7 @@ public class BankActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Log.d(tag, "[onClick] bank clicked");
-            if (bankedCount > 25){  //  Cannot bank more than 25 coins per day as per specification
+            if (bankedCount >= 25){  //  Cannot bank more than 25 coins per day as per specification
                 if (selectedCoin !=-1){ // -1 is the value for the default "select coin" menu item
                     Log.d(tag, "[onClick] banked 25 coins");
                     Snackbar.make(findViewById(R.id.viewSnack), "You have already banked 25 coins today!, transfer your spare change.", Snackbar.LENGTH_LONG).show(); //  displays not allowed to player
@@ -215,7 +222,7 @@ public class BankActivity extends AppCompatActivity {
                     List<String> docRefs = new ArrayList<>(collectedMap.keySet()); // creates an array list of all the firestore object references
                     String reference = docRefs.get(selectedCoin); // gets the reference for the coin in fireBase to allow an update
 
-                    coin c = collectedMap.get(reference); // gets the coin the user wishes to bank
+                    Coin c = collectedMap.get(reference); // gets the coin the user wishes to bank
                     Log.d(tag, "[onClick] retrieved selected coin");
                     Intent bankPopUp = new Intent(BankActivity.this, BankWindow.class); // creates the intent to start the pop up activity to bank the coin
                     assert c != null;
@@ -259,7 +266,7 @@ public class BankActivity extends AppCompatActivity {
                     List<String> docRefs = new ArrayList<>(collectedMap.keySet()); // creates an array list of all the firestore object references
                     String reference = docRefs.get(selectedCoin); // gets the reference for the coin in fireBase to allow an update
 
-                    coin c = collectedMap.get(reference); // gets the coin the user wishes to transfer
+                    Coin c = collectedMap.get(reference); // gets the coin the user wishes to transfer
                     assert c != null;
                     if (c.getId().length() > 29) { // a coin id is always 29 characters, hence if the id has the word SENT at the end it cannot be sent again
                         Snackbar.make(findViewById(R.id.viewSnack), "This coin was transferred to you.", Snackbar.LENGTH_SHORT).show();
@@ -281,7 +288,7 @@ public class BankActivity extends AppCompatActivity {
                                 break;
                         }
 
-
+                        transferPopup.putExtra("reference", reference); // adds the objects reference to the intent to allow for value update in fireBase
                         transferPopup.putExtra("coin", c); // adds the coin to the intent
                         startActivity(transferPopup);
                         }
@@ -294,7 +301,7 @@ public class BankActivity extends AppCompatActivity {
     };
 
 
-    public void updateSpinnerUI(ArrayList<coin> collected){ // method to update the spinner menu
+    public void updateSpinnerUI(ArrayList<Coin> collected){ // method to update the spinner menu
         Log.d(tag, "[updateSpinnerUI] updating UI");
         String[] drop = new String[collected.size() + 1]; // array for thr drop down list
         drop[0] = "Select coin."; // adds a default value to the menu

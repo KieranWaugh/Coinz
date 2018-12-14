@@ -4,9 +4,13 @@
     <item
         android:id="@+id/profile_signout"
         android:icon="@drawable/ic_home_black_24dp"
-        android:title="Sign Out" />
+        android:title="@string/sign_out" />
     <item
         android:id="@+id/profile_pic"
-        android:title="Change Profile Picture"/>
+        android:title="@string/change_profile_picture"/>
+
+    <item
+        android:id="@+id/how"
+        android:title="@string/how_to_play_title"/>
 
 </menu>

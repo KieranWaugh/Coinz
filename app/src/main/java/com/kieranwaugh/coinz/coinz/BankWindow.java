@@ -39,7 +39,7 @@ public class BankWindow extends AppCompatActivity {
         multiView.setVisibility(View.INVISIBLE); // sets users multi to invisible
 
         Intent intent = getIntent(); // gets the intent from the bank activity
-        coin c = (coin) intent.getSerializableExtra("coin"); // gets the coin value from the bank activity
+        Coin c = (Coin) intent.getSerializableExtra("coin"); // gets the coin value from the bank activity
         double gold = intent.getDoubleExtra("gold", 0.0); // gets the players current gold balance
         String reference = intent.getStringExtra("reference"); // gets the coins object reference in fireBase
         double rate = intent.getDoubleExtra("rate", 0.0); // gets the exchange rate fo the coins currency
@@ -54,6 +54,8 @@ public class BankWindow extends AppCompatActivity {
         goldView.setText(c.getValue()*rate + " GOLD"); // sets the gold value the coin is worth
         FirebaseFirestore db = FirebaseFirestore.getInstance();// init for fireBase firestore
 
+        TextView ratesview = findViewById(R.id.ratesView);
+        ratesview.setText(c.getCurrency() + ": " + rate);
 
         CollectionReference cr = db.collection("user").document(email).collection("INFO"); // getting the players multiplier (if purchased from the shop)
         cr.get().addOnCompleteListener(task -> {
@@ -71,7 +73,7 @@ public class BankWindow extends AppCompatActivity {
 
             }else{
                 curView.setText(c.getCurrency() + ": " + c.getValue()); // refreshes the coin information view
-                goldView.setText(c.getValue()*rate + " GOLD"); // refreshes the gold value view
+                goldView.setText((c.getValue() * multi)*rate + " GOLD");// refreshes the gold value view
             }
         });
 

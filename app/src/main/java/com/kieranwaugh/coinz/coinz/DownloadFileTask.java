@@ -3,20 +3,16 @@ package com.kieranwaugh.coinz.coinz;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
-import com.google.android.gms.common.util.IOUtils;
-
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class DownloadFileTask extends AsyncTask<String, Void, String> {
-
+    public DownloadCompleteRunner delegate = null;
     private String tag = "DownloadFileTask";
+
+
 
     @Override
     protected String doInBackground(String... urls) {
@@ -54,8 +50,8 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        super.onPostExecute(result);
-        DownloadCompleteRunner.downloadComplete(result);
+        delegate.processFinish(result);
+
 
     }
 
